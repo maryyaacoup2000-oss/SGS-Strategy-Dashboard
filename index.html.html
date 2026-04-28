@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SGS · Strategy Execution Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  /* Surfaces */
+  --bg:#08181B;
+  --bg-2:#0D2226;
+  --surface:#122A2F;
+  --surface-2:#173338;
+  --surface-3:#1E3F46;
+  --line:#23454C;
+  --line-2:#2C545C;
+
+  /* Text */
+  --ink:#EAF1F0;
+  --ink-2:#C9D6D4;
+  --muted:#90A4A1;
+  --muted-2:#6E827F;
+
+  /* Brand */
+  --teal:#2A9D9A;
+  --teal-2:#3FB7B3;
+  --teal-3:#5ECFCB;
+  --teal-deep:#176B6A;
+  --gold:#C49A4A;
+  --gold-2:#E2BE76;
+  --bronze:#9E7434;
+  --bronze-2:#B98C4A;
+
+  /* RAG */
+  --rag-green:#3FCB7E;
+  --rag-green-2:#1F8E55;
+  --rag-amber:#E8B043;
+  --rag-amber-2:#A57A1B;
+  --rag-red:#E76051;
+  --rag-red-2:#A33B30;
+  --rag-blue:#5AAEE0;
+
+  --shadow:0 1px 0 rgba(255,255,255,.03), 0 8px 22px rgba(0,0,0,.35);
+  --shadow-strong:0 14px 40px rgba(0,0,0,.5);
+  --r:14px;
+  --r-sm:10px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.45;min-height:100vh}
+html[dir="rtl"] body{font-family:'Cairo','Inter',system-ui,sans-serif}
+body{background:radial-gradient(1200px 600px at 80% -100px, rgba(42,157,154,.10), transparent 70%),radial-gradient(900px 500px at -10% 10%, rgba(196,154,74,.06), transparent 60%), var(--bg)}
+
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit;color:inherit}
+
+.app{min-height:100vh;display:flex;flex-direction:column}
+
+/* ============ HEADER ============ */
+.header{
+  background:linear-gradient(180deg,#0B2226 0%, #0A1F23 100%);
+  border-bottom:1px solid var(--line);
+  padding:14px 28px;
+  position:sticky;top:0;z-index:50;
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:18px;max-width:1640px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-logo{
+  width:64px;height:64px;border-radius:14px;
+  background:linear-gradient(180deg,#0F2A2E,#0A2024);
+  border:1px solid var(--line-2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.brand-text .org{font-weight:800;font-size:15.5px;color:var(--ink);letter-spacing:.2px;line-height:1.15}
+.brand-text .org-ar{font-weight:700;font-size:13.5px;color:var(--teal-2);line-height:1.35;margin-top:2px;font-family:'Cairo',sans-serif}
+.brand-text .product{font-size:11.5px;color:var(--muted);margin-top:5px;letter-spacing:.5px;text-transform:uppercase}
+html[dir="rtl"] .brand-text .product{text-transform:none;letter-spacing:0}
+
+.header-actions{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.lang-toggle button{padding:6px 14px;border-radius:999px;color:var(--ink-2);font-weight:600;font-size:13px;transition:.2s}
+.lang-toggle button.active{background:linear-gradient(180deg,var(--teal),var(--teal-deep));color:#fff;box-shadow:0 2px 8px rgba(42,157,154,.4)}
+
+.user-chip{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink-2)}
+html[dir="rtl"] .user-chip{padding:6px 6px 6px 14px}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold-2),var(--gold));color:#1B2A14;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:11px}
+.user-chip .role{font-weight:600;color:var(--ink)}
+.user-chip .sub{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+
+/* ============ TABS ============ */
+.tabs-bar{
+  background:rgba(13,34,38,.72);backdrop-filter:saturate(140%) blur(8px);
+  border-bottom:1px solid var(--line);
+  position:sticky;top:92px;z-index:40;
+}
+.tabs-inner{max-width:1640px;margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.tabs{display:flex;gap:2px}
+.tab{padding:14px 18px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px;font-size:13.5px;transition:.18s}
+.tab:hover{color:var(--ink-2)}
+.tab.active{color:var(--teal-3);border-bottom-color:var(--teal-2)}
+.tab .icon{width:17px;height:17px}
+.crumbs{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.5px;padding:10px 0}
+.crumbs span.sep{opacity:.45}
+.crumbs .crumb-link{cursor:pointer;color:var(--ink-2)}
+.crumbs .crumb-link:hover{color:var(--teal-3)}
+
+/* ============ MAIN ============ */
+.main{max-width:1640px;margin:0 auto;padding:24px 28px 56px;width:100%;flex:1}
+.section{display:none}
+.section.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:18px}
+.page-title{font-size:21px;font-weight:800;color:var(--ink);margin:0 0 5px;letter-spacing:-.2px}
+.page-sub{color:var(--muted);margin:0;font-size:13px;max-width:820px}
+
+/* ============ CARDS ============ */
+.card{
+  background:linear-gradient(180deg,var(--surface) 0%, var(--surface-2) 100%);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  padding:18px;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.card-h{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px}
+.card-title{font-size:13.5px;font-weight:700;color:var(--ink);margin:0;letter-spacing:.2px}
+.card-sub{font-size:11.5px;color:var(--muted);margin:3px 0 0;letter-spacing:.2px}
+
+.section-divider{display:flex;align-items:center;gap:10px;margin:30px 0 14px}
+.section-divider .bar{height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--line) 30%, var(--line) 70%, transparent)}
+.section-divider .lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:0 4px}
+html[dir="rtl"] .section-divider .lbl{letter-spacing:.5px;text-transform:none}
+
+/* ============ GRID ============ */
+.grid{display:grid;gap:16px}
+.grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.grid.cols-12{grid-template-columns:repeat(12,1fr)}
+.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}.span-3{grid-column:span 3}.span-12{grid-column:span 12}
+@media (max-width:1200px){
+  .grid.cols-4{grid-template-columns:repeat(2,1fr)}
+  .grid.cols-3{grid-template-columns:repeat(2,1fr)}
+  .span-8,.span-6,.span-5,.span-4,.span-3{grid-column:span 12}
+}
+@media (max-width:680px){.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}}
+
+/* ============ KPI MINI ============ */
+.kpi-mini{
+  background:linear-gradient(180deg,var(--surface) 0%, var(--surface-2) 100%);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  padding:18px;position:relative;overflow:hidden;
+}
+.kpi-mini::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--teal-2)}
+html[dir="rtl"] .kpi-mini::before{left:auto;right:0}
+.kpi-mini.amber::before{background:var(--rag-amber)}
+.kpi-mini.red::before{background:var(--rag-red)}
+.kpi-mini.gold::before{background:var(--gold)}
+.kpi-mini .ico{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(42,157,154,.12);color:var(--teal-3);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;
+  border:1px solid rgba(42,157,154,.25);
+}
+.kpi-mini.gold .ico{background:rgba(196,154,74,.14);color:var(--gold-2);border-color:rgba(196,154,74,.3)}
+.kpi-mini.amber .ico{background:rgba(232,176,67,.12);color:var(--rag-amber);border-color:rgba(232,176,67,.25)}
+.kpi-mini.red .ico{background:rgba(231,96,81,.12);color:var(--rag-red);border-color:rgba(231,96,81,.25)}
+.kpi-mini .ico svg{width:20px;height:20px}
+.kpi-mini .label{font-size:11.5px;color:var(--muted);font-weight:500;margin-bottom:6px;line-height:1.3;letter-spacing:.2px}
+.kpi-mini .value{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.6px;line-height:1}
+.kpi-mini .value .u{font-size:14px;color:var(--muted-2);font-weight:600;margin-left:4px}
+html[dir="rtl"] .kpi-mini .value .u{margin-left:0;margin-right:4px}
+.kpi-mini .delta{font-size:11.5px;margin-top:8px;display:flex;align-items:center;gap:5px;color:var(--muted)}
+.kpi-mini .delta.up{color:var(--rag-green)}
+.kpi-mini .delta.down{color:var(--rag-red)}
+
+/* ============ RAG ============ */
+.rag{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border:1px solid transparent}
+html[dir="rtl"] .rag{text-transform:none;letter-spacing:0}
+.rag .dot{width:6px;height:6px;border-radius:50%}
+.rag.green{background:rgba(63,203,126,.14);color:#7DE3A6;border-color:rgba(63,203,126,.3)}
+.rag.green .dot{background:var(--rag-green);box-shadow:0 0 0 3px rgba(63,203,126,.15)}
+.rag.amber{background:rgba(232,176,67,.13);color:#F4CB76;border-color:rgba(232,176,67,.3)}
+.rag.amber .dot{background:var(--rag-amber);box-shadow:0 0 0 3px rgba(232,176,67,.15)}
+.rag.red{background:rgba(231,96,81,.14);color:#F38C7E;border-color:rgba(231,96,81,.3)}
+.rag.red .dot{background:var(--rag-red);box-shadow:0 0 0 3px rgba(231,96,81,.15)}
+.rag.blue{background:rgba(90,174,224,.14);color:#90C9EA;border-color:rgba(90,174,224,.3)}
+.rag.blue .dot{background:var(--rag-blue);box-shadow:0 0 0 3px rgba(90,174,224,.15)}
+
+/* ============ PROGRESS BARS ============ */
+.bar{height:7px;border-radius:999px;background:rgba(255,255,255,.05);overflow:hidden;position:relative;border:1px solid rgba(255,255,255,.04)}
+.bar > span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--rag-green-2),var(--rag-green))}
+.bar.amber > span{background:linear-gradient(90deg,var(--rag-amber-2),var(--rag-amber))}
+.bar.red > span{background:linear-gradient(90deg,var(--rag-red-2),var(--rag-red))}
+.progress-row{display:flex;align-items:center;gap:10px}
+.progress-row .bar{flex:1}
+.progress-row .pct{font-weight:700;font-size:13px;color:var(--ink);min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
+html[dir="rtl"] .progress-row .pct{text-align:left}
+
+/* ============ PILLAR CARDS ============ */
+.pillar-card{padding:20px;cursor:pointer;transition:.2s;display:flex;flex-direction:column;gap:14px;height:100%}
+.pillar-card:hover{border-color:var(--teal-2);box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 0 1px rgba(42,157,154,.3);transform:translateY(-2px)}
+.pillar-head{display:flex;align-items:flex-start;gap:14px}
+.pillar-icon{
+  width:46px;height:46px;border-radius:12px;
+  background:linear-gradient(135deg,var(--teal-deep),var(--teal));
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 6px 16px rgba(23,107,106,.4);
+  border:1px solid rgba(255,255,255,.1);
+}
+.pillar-icon svg{width:22px;height:22px}
+.pillar-name{font-weight:700;font-size:15px;color:var(--ink);line-height:1.3;margin:0 0 3px}
+.pillar-code{font-size:10.5px;font-weight:800;color:var(--gold-2);letter-spacing:1.2px}
+.pillar-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:14px;border-top:1px dashed var(--line-2)}
+.pillar-stat{text-align:center}
+.pillar-stat .v{font-size:18px;font-weight:800;color:var(--ink)}
+.pillar-stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+html[dir="rtl"] .pillar-stat .l{text-transform:none;letter-spacing:0}
+
+/* ============ INITIATIVE CARD ============ */
+.init-card{padding:18px;cursor:pointer;transition:.18s;background:linear-gradient(180deg,var(--surface) 0%, var(--surface-2) 100%);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.init-card:hover{border-color:var(--teal-2);transform:translateY(-1px);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.init-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.init-title{font-weight:700;font-size:14.5px;color:var(--ink);margin:0;line-height:1.35}
+.init-pillar-tag{font-size:10.5px;color:var(--gold-2);font-weight:700;letter-spacing:.6px;margin-bottom:5px;text-transform:uppercase}
+html[dir="rtl"] .init-pillar-tag{text-transform:none;letter-spacing:0}
+.init-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;color:var(--muted);font-size:12px;margin:12px 0}
+.init-meta .m{display:flex;flex-direction:column;gap:2px}
+.init-meta .lab{font-size:10px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+html[dir="rtl"] .init-meta .lab{text-transform:none;letter-spacing:0}
+.init-meta .val{color:var(--ink);font-weight:600;font-size:12.5px;display:flex;align-items:center;gap:6px}
+.init-meta .val svg{width:13px;height:13px;color:var(--teal-3);flex-shrink:0}
+.owner-pill{display:inline-flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;background:rgba(42,157,154,.10);border:1px solid rgba(42,157,154,.25);border-radius:999px;font-size:11.5px;color:var(--ink-2);font-weight:600;margin-top:4px}
+html[dir="rtl"] .owner-pill{padding:5px 5px 5px 10px}
+.owner-pill .av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--gold-2),var(--bronze));color:#16221A;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:9.5px;flex-shrink:0}
+.init-deps{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-2)}
+.dep-chip{font-size:10.5px;font-weight:600;padding:3px 8px;background:rgba(196,154,74,.10);color:var(--gold-2);border:1px solid rgba(196,154,74,.22);border-radius:6px}
+
+/* ============ FILTERS ============ */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+.filter{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:12.5px}
+.filter select{border:none;outline:none;background:transparent;font-weight:600;color:var(--ink);font-size:12.5px;padding-right:6px}
+html[dir="rtl"] .filter select{padding-right:0;padding-left:6px}
+.filter select option{background:var(--surface);color:var(--ink)}
+.filter label{color:var(--muted);font-weight:500}
+.filter-clear{padding:7px 12px;border-radius:10px;font-size:12.5px;color:var(--teal-3);font-weight:600;border:1px dashed transparent}
+.filter-clear:hover{border-color:var(--teal-2);background:rgba(42,157,154,.07)}
+.search-input{padding:7px 12px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;width:220px;outline:none;background:var(--surface);color:var(--ink)}
+.search-input::placeholder{color:var(--muted-2)}
+.search-input:focus{border-color:var(--teal-2)}
+
+/* ============ TABLE ============ */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+.tbl th{font-weight:700;color:var(--muted);text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.18);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+html[dir="rtl"] .tbl th{text-align:right;text-transform:none;letter-spacing:0}
+.tbl td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle;color:var(--ink-2)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr{transition:background .15s}
+.tbl tr:hover td{background:rgba(42,157,154,.05)}
+.tbl .num{font-variant-numeric:tabular-nums;font-weight:600}
+
+/* ============ GANTT ============ */
+.gantt{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow)}
+.gantt-inner{min-width:1100px;display:grid;grid-template-columns:280px 1fr}
+.gantt-head{background:rgba(0,0,0,.18);border-bottom:1px solid var(--line);padding:12px 14px;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+html[dir="rtl"] .gantt-head{text-transform:none;letter-spacing:0}
+.gantt-months{display:grid;background:rgba(0,0,0,.18);border-bottom:1px solid var(--line);position:relative}
+.gantt-month{padding:10px 6px;font-size:10.5px;color:var(--muted);text-align:center;font-weight:700;border-left:1px solid var(--line)}
+html[dir="rtl"] .gantt-month{border-left:none;border-right:1px solid var(--line)}
+.gantt-row{display:contents}
+.gantt-row .label{padding:14px;font-size:12.5px;font-weight:600;color:var(--ink);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.gantt-row .label .small{font-size:10.5px;color:var(--muted);font-weight:500;display:flex;align-items:center;gap:6px}
+.gantt-row .label .small .av{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--gold-2),var(--bronze));color:#16221A;font-weight:800;display:inline-flex;align-items:center;justify-content:center;font-size:9px}
+.gantt-row .track{position:relative;border-bottom:1px solid var(--line);height:60px;background-image:linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:calc(100%/12) 100%}
+.gantt-bar{position:absolute;top:50%;transform:translateY(-50%);height:24px;border-radius:7px;background:linear-gradient(90deg,var(--rag-green-2),var(--rag-green));display:flex;align-items:center;padding:0 10px;color:#072014;font-size:11px;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.35);overflow:hidden;white-space:nowrap;cursor:pointer}
+.gantt-bar.amber{background:linear-gradient(90deg,var(--rag-amber-2),var(--rag-amber));color:#2A1E07}
+.gantt-bar.red{background:linear-gradient(90deg,var(--rag-red-2),var(--rag-red));color:#fff}
+.gantt-bar .progress-fill{position:absolute;left:0;top:0;bottom:0;background:rgba(0,0,0,.18);border-radius:7px}
+html[dir="rtl"] .gantt-bar .progress-fill{left:auto;right:0}
+.gantt-today{position:absolute;top:0;bottom:0;width:2px;background:var(--rag-red);z-index:5;opacity:.85;pointer-events:none}
+.gantt-today::after{content:"Today";position:absolute;top:-18px;left:50%;transform:translateX(-50%);background:var(--rag-red);color:#fff;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;letter-spacing:.4px}
+html[dir="rtl"] .gantt-today::after{content:"اليوم"}
+
+/* ============ DRAWER ============ */
+.drawer-overlay{position:fixed;inset:0;background:rgba(3,12,14,.70);backdrop-filter:blur(2px);z-index:90;display:none;animation:fade .2s}
+.drawer-overlay.show{display:block}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(640px,95vw);background:var(--bg-2);z-index:91;box-shadow:-12px 0 38px rgba(0,0,0,.55);transform:translateX(100%);transition:.28s ease;overflow-y:auto;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+html[dir="rtl"] .drawer{right:auto;left:0;transform:translateX(-100%);box-shadow:12px 0 38px rgba(0,0,0,.55);border-left:none;border-right:1px solid var(--line)}
+.drawer.show{transform:translateX(0)}
+.drawer-head{padding:20px 22px;background:linear-gradient(135deg,#0E2D31,#0A1E22);border-bottom:1px solid var(--line);color:var(--ink);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.drawer-eyebrow{font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--gold-2);text-transform:uppercase}
+html[dir="rtl"] .drawer-eyebrow{letter-spacing:.4px;text-transform:none}
+.drawer-title{margin:7px 0 5px;font-size:18px;font-weight:800;color:var(--ink)}
+.drawer-sub{font-size:12.5px;color:var(--muted)}
+.drawer-close{color:var(--ink);font-size:22px;line-height:1;background:rgba(255,255,255,.06);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
+.drawer-close:hover{background:rgba(255,255,255,.1)}
+.drawer-body{padding:22px;display:flex;flex-direction:column;gap:18px}
+
+.detail-block{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.detail-block h4{margin:0 0 12px;font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+html[dir="rtl"] .detail-block h4{letter-spacing:0;text-transform:none}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:8px 14px;font-size:13px}
+html[dir="rtl"] .kv{grid-template-columns:160px 1fr}
+.kv .k{color:var(--muted);font-weight:500}
+.kv .v{color:var(--ink);font-weight:600}
+
+.list-clean{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.list-clean li{padding:11px 13px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:13px;cursor:pointer;transition:.15s}
+.list-clean li:hover{border-color:var(--teal-2);background:var(--surface-3)}
+.list-clean li .name{font-weight:600;color:var(--ink)}
+.list-clean li .sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.summary-grid .s{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:11px;text-align:center}
+.summary-grid .s .v{font-size:18px;font-weight:800;color:var(--ink)}
+.summary-grid .s .l{font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+html[dir="rtl"] .summary-grid .s .l{text-transform:none;letter-spacing:0}
+@media (max-width:520px){.summary-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ============ KPI BIG CARD ============ */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{padding:18px;display:flex;flex-direction:column;gap:12px;height:100%;cursor:pointer;transition:.18s}
+.kpi-card:hover{border-color:var(--teal-2);transform:translateY(-1px);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.kpi-card .h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.kpi-card .name{font-weight:700;font-size:13.5px;color:var(--ink);line-height:1.4}
+.kpi-card .cat{font-size:10px;color:var(--gold-2);font-weight:800;letter-spacing:.7px;margin-bottom:4px;text-transform:uppercase}
+html[dir="rtl"] .kpi-card .cat{letter-spacing:0;text-transform:none}
+.kpi-card .vals{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;padding-top:6px}
+.kpi-card .actual{font-size:24px;font-weight:800;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.kpi-card .target{font-size:11px;color:var(--muted);text-align:right}
+html[dir="rtl"] .kpi-card .target{text-align:left}
+.kpi-card .target .t-val{font-size:13px;color:var(--ink-2);font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.kpi-card .meta-row{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);padding-top:10px;border-top:1px dashed var(--line-2);margin-top:4px}
+.spark{width:100%;height:48px}
+
+/* ============ DONUT ============ */
+.donut-wrap{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.donut{position:relative;width:180px;height:180px}
+.donut svg{transform:rotate(-90deg)}
+.donut .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.donut .center .big{font-size:32px;font-weight:800;color:var(--ink);line-height:1}
+.donut .center .lbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-top:5px}
+html[dir="rtl"] .donut .center .lbl{text-transform:none;letter-spacing:0}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11.5px;color:var(--muted);justify-content:center}
+.legend .li{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+/* ============ FOOTER ============ */
+.footer{margin-top:40px;padding:18px 28px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--bg-2)}
+.footer .v2030{display:inline-flex;align-items:center;gap:6px;color:var(--gold-2);font-weight:600}
+
+/* ============ EXEC HERO ============ */
+.exec-hero{
+  position:relative;overflow:hidden;
+  background:
+    radial-gradient(700px 300px at 100% 0%, rgba(196,154,74,.12), transparent 60%),
+    radial-gradient(900px 400px at -10% 100%, rgba(42,157,154,.18), transparent 60%),
+    linear-gradient(180deg,#0F2A2E 0%, #0B2024 100%);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  padding:24px 28px;margin-bottom:22px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px;
+}
+.exec-hero::before{
+  content:"";position:absolute;top:-60px;right:-40px;width:240px;height:240px;border-radius:50%;
+  background:conic-gradient(from 200deg,rgba(196,154,74,.18),rgba(42,157,154,.10),rgba(196,154,74,.05));
+  filter:blur(14px);opacity:.55;
+}
+html[dir="rtl"] .exec-hero::before{right:auto;left:-40px}
+.hero-text{position:relative;z-index:1;max-width:680px}
+.hero-text .eyebrow{font-size:10.5px;font-weight:800;letter-spacing:1.6px;color:var(--gold-2);text-transform:uppercase}
+html[dir="rtl"] .hero-text .eyebrow{letter-spacing:.4px;text-transform:none}
+.hero-text h2{margin:8px 0 6px;font-size:23px;font-weight:800;letter-spacing:-.4px;color:var(--ink)}
+.hero-text p{margin:0;font-size:13px;color:var(--ink-2);max-width:680px;line-height:1.55}
+.hero-stats{display:flex;gap:28px;position:relative;z-index:1;flex-wrap:wrap}
+.hero-stats .vs{text-align:center;min-width:80px}
+.hero-stats .vs .v{font-size:28px;font-weight:800;line-height:1;color:var(--ink)}
+.hero-stats .vs .v.gold{background:linear-gradient(180deg,var(--gold-2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-stats .vs .l{font-size:10.5px;color:var(--muted);margin-top:5px;letter-spacing:.6px;text-transform:uppercase}
+html[dir="rtl"] .hero-stats .vs .l{letter-spacing:0;text-transform:none}
+
+/* ============ STATUS PILL DARK ============ */
+.tag{display:inline-block;padding:3px 8px;border-radius:6px;font-size:10.5px;font-weight:700;background:rgba(196,154,74,.10);color:var(--gold-2);border:1px solid rgba(196,154,74,.22);letter-spacing:.4px}
+html[dir="rtl"] .tag{letter-spacing:0}
+
+/* ============ MISC ============ */
+.muted{color:var(--muted)}
+.flex{display:flex}.between{justify-content:space-between}.center{align-items:center}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}
+.hidden{display:none!important}
+
+/* responsive header */
+@media (max-width:760px){
+  .header{padding:12px 16px}
+  .tabs-inner,.main{padding-left:16px;padding-right:16px}
+  .exec-hero{padding:18px}
+  .hero-stats{gap:18px}
+  .hero-stats .vs .v{font-size:22px}
+  .tab{padding:12px 10px;font-size:12.5px}
+  .search-input{width:160px}
+  .brand-text .org{font-size:13.5px}
+  .brand-text .org-ar{font-size:12px}
+  .brand-text .product{font-size:10.5px}
+  .brand-logo{width:54px;height:54px}
+}
+
+/* tooltips for charts have white text already by default */
+canvas{max-width:100%}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ HEADER ============ -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo" aria-label="SGS logo">
+          <!-- SGS-inspired logo: palm crown over earth-toned strata -->
+          <svg viewBox="0 0 100 100" width="56" height="56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="strataA" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#E2BE76"/>
+                <stop offset="100%" stop-color="#9E7434"/>
+              </linearGradient>
+              <linearGradient id="strataB" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stop-color="#C49A4A"/>
+                <stop offset="100%" stop-color="#7A5526"/>
+              </linearGradient>
+              <linearGradient id="palmG" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#3FB7B3"/>
+                <stop offset="100%" stop-color="#176B6A"/>
+              </linearGradient>
+            </defs>
+            <!-- earth strata / mountains -->
+            <g transform="translate(0,2)">
+              <path d="M14 70 L34 46 L50 60 L66 42 L86 70 L86 80 L14 80 Z" fill="url(#strataA)"/>
+              <path d="M14 78 L30 60 L46 72 L62 56 L86 78 L86 84 L14 84 Z" fill="url(#strataB)" opacity=".95"/>
+            </g>
+            <!-- palm trunk -->
+            <path d="M48 52 Q50 64 50 78 Q50 84 48 86" stroke="#176B6A" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".9"/>
+            <!-- palm fronds -->
+            <g fill="url(#palmG)">
+              <path d="M50 52 Q42 38 22 36 Q34 30 44 36 Q40 30 38 22 Q46 28 50 36 Q54 28 62 22 Q60 30 56 36 Q66 30 78 36 Q58 38 50 52 Z"/>
+              <path d="M50 52 Q42 46 26 48 Q36 42 44 44 Q56 42 64 44 Q74 46 74 48 Q58 46 50 52 Z" opacity=".85"/>
+            </g>
+            <!-- center dot -->
+            <circle cx="50" cy="51" r="2.4" fill="#176B6A"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="org" data-i18n="org_name">Saudi Geological Survey</div>
+          <div class="org-ar" data-i18n="org_name_local" dir="rtl">هيئة المساحة الجيولوجية السعودية</div>
+          <div class="product" data-i18n="product">Strategy Execution Dashboard · 2026</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="lang-toggle" role="tablist" aria-label="Language">
+          <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+          <button id="lang-ar" onclick="setLang('ar')">العربية</button>
+        </div>
+        <div class="user-chip">
+          <div class="user-avatar">SI</div>
+          <div>
+            <div class="role" data-i18n="user_role">Strategy Implementation Office</div>
+            <span class="sub" data-i18n="user_sub">Executive view</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ TABS ============ -->
+  <div class="tabs-bar">
+    <div class="tabs-inner">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="overview">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13l9-9 9 9"/><path d="M5 11v9h14v-9"/></svg>
+          <span data-i18n="tab_overview">Executive Summary</span>
+        </button>
+        <button class="tab" data-tab="strategy">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 17l9 5 9-5"/><path d="M3 12l9 5 9-5"/></svg>
+          <span data-i18n="tab_strategy">Strategy Layer</span>
+        </button>
+        <button class="tab" data-tab="initiatives">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v4H3z"/><path d="M3 11h12v4H3z"/><path d="M3 19h18v2H3z"/></svg>
+          <span data-i18n="tab_initiatives">Initiative Layer</span>
+        </button>
+        <button class="tab" data-tab="kpis">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-6"/></svg>
+          <span data-i18n="tab_kpis">KPI Layer</span>
+        </button>
+      </div>
+      <div class="crumbs" id="crumbs">
+        <span class="crumb-link" onclick="activateTab('overview')" data-i18n="home">Dashboard</span>
+        <span class="sep">›</span>
+        <span data-i18n="tab_overview">Executive Summary</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- =============== OVERVIEW =============== -->
+    <section id="section-overview" class="section active">
+
+      <div class="exec-hero">
+        <div class="hero-text">
+          <div class="eyebrow" data-i18n="vision_eyebrow">Vision 2030 · Strategy Execution</div>
+          <h2 data-i18n="vision_title">Advancing the Kingdom's Geological Knowledge Base</h2>
+          <p data-i18n="vision_desc">Phase 1 view of strategy execution covering geological surveying, advanced technology adoption, environmental geology, digital data services, and international collaboration</p>
+        </div>
+        <div class="hero-stats">
+          <div class="vs"><div class="v gold">63%</div><div class="l" data-i18n="vs_overall">Overall Strategy</div></div>
+          <div class="vs"><div class="v">5</div><div class="l" data-i18n="vs_pillars">Pillars</div></div>
+          <div class="vs"><div class="v">8</div><div class="l" data-i18n="vs_init">Initiatives</div></div>
+          <div class="vs"><div class="v">9</div><div class="l" data-i18n="vs_kpis">Key KPIs</div></div>
+        </div>
+      </div>
+
+      <!-- KPI mini cards -->
+      <div class="grid cols-4" style="margin-bottom:22px">
+        <div class="kpi-mini">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
+          <div class="label" data-i18n="km_mapping">National Mapping Coverage</div>
+          <div class="value">62<span class="u">%</span></div>
+          <div class="delta up">▲ 4.2 pts <span class="muted" data-i18n="vs_q">vs Q4'25</span></div>
+        </div>
+        <div class="kpi-mini amber">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16l8-2 4-7 2-1 1 2-3 5 7-2 1 2-7 4-3 7-2-1 1-3-9 4z"/></svg></div>
+          <div class="label" data-i18n="km_geo">Airborne Survey Completion</div>
+          <div class="value">54<span class="u">%</span></div>
+          <div class="delta up">▲ 2.1 pts <span class="muted" data-i18n="vs_q">vs Q4'25</span></div>
+        </div>
+        <div class="kpi-mini gold">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></div>
+          <div class="label" data-i18n="km_packages">Datasets &amp; Maps Published</div>
+          <div class="value">87</div>
+          <div class="delta up">▲ 12 <span class="muted" data-i18n="this_y">this year</span></div>
+        </div>
+        <div class="kpi-mini">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg></div>
+          <div class="label" data-i18n="km_users">Database Utilization Rate</div>
+          <div class="value">76<span class="u">%</span></div>
+          <div class="delta up">▲ 6 pts <span class="muted" data-i18n="ytd">YTD</span></div>
+        </div>
+      </div>
+
+      <!-- Donut + RAG breakdown + Trend -->
+      <div class="grid cols-12" style="margin-bottom:22px">
+        <div class="card span-4">
+          <div class="card-h">
+            <div>
+              <h3 class="card-title" data-i18n="ov_overall">Overall Strategy Progress</h3>
+              <p class="card-sub" data-i18n="ov_overall_sub">Weighted across 5 pillars</p>
+            </div>
+            <span class="rag green"><span class="dot"></span><span data-i18n="rag_on_track">On Track</span></span>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg width="180" height="180" viewBox="0 0 180 180">
+                <circle cx="90" cy="90" r="76" stroke="rgba(255,255,255,.06)" stroke-width="14" fill="none"/>
+                <circle cx="90" cy="90" r="76" stroke="url(#donutGrad)" stroke-width="14" fill="none"
+                        stroke-dasharray="477.5" stroke-dashoffset="176.7" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="donutGrad" x1="0" x2="1">
+                    <stop offset="0%" stop-color="#176B6A"/>
+                    <stop offset="55%" stop-color="#3FB7B3"/>
+                    <stop offset="100%" stop-color="#E2BE76"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="center"><div class="big">63%</div><div class="lbl" data-i18n="ov_complete">Complete</div></div>
+            </div>
+            <div class="legend">
+              <span class="li"><span class="sw" style="background:var(--rag-green)"></span><span data-i18n="rag_on_track">On Track</span></span>
+              <span class="li"><span class="sw" style="background:var(--rag-amber)"></span><span data-i18n="rag_at_risk">At Risk</span></span>
+              <span class="li"><span class="sw" style="background:var(--rag-red)"></span><span data-i18n="rag_off">Off Track</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-4">
+          <div class="card-h">
+            <div>
+              <h3 class="card-title" data-i18n="ov_rag_init">Initiative Health</h3>
+              <p class="card-sub" data-i18n="ov_rag_init_sub">RAG distribution across 8 initiatives</p>
+            </div>
+          </div>
+          <div style="position:relative;height:230px"><canvas id="ragInitChart"></canvas></div>
+        </div>
+
+        <div class="card span-4">
+          <div class="card-h">
+            <div>
+              <h3 class="card-title" data-i18n="ov_trend">Strategy Progress Trend</h3>
+              <p class="card-sub" data-i18n="ov_trend_sub">Quarterly weighted progress vs target</p>
+            </div>
+          </div>
+          <div style="position:relative;height:230px"><canvas id="trendChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- KPI performance bar chart + Initiative status snapshot -->
+      <div class="grid cols-12" style="margin-bottom:22px">
+        <div class="card span-8">
+          <div class="card-h">
+            <div>
+              <h3 class="card-title" data-i18n="ov_kpi_perf">KPI Performance Snapshot</h3>
+              <p class="card-sub" data-i18n="ov_kpi_perf_sub">Achievement vs target across all top-level KPIs</p>
+            </div>
+            <span class="tag" data-i18n="apr_2026">Apr 2026</span>
+          </div>
+          <div style="position:relative;height:280px"><canvas id="kpiBarChart"></canvas></div>
+        </div>
+        <div class="card span-4">
+          <div class="card-h">
+            <div>
+              <h3 class="card-title" data-i18n="ov_init_status">Initiatives by Status</h3>
+              <p class="card-sub" data-i18n="ov_init_status_sub">Active strategic initiatives</p>
+            </div>
+          </div>
+          <div id="initSnapshot" style="display:flex;flex-direction:column;gap:10px;margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- Strategic Pillars at a glance -->
+      <div class="section-divider">
+        <div class="bar"></div>
+        <div class="lbl" data-i18n="strategic_pillars">Strategic Pillars</div>
+        <div class="bar"></div>
+      </div>
+      <div class="page-head">
+        <div>
+          <h2 class="page-title" data-i18n="pillars_title">Strategic Pillars at a Glance</h2>
+          <p class="page-sub" data-i18n="pillars_sub">Click a pillar to drill into objectives, initiatives, and KPIs</p>
+        </div>
+      </div>
+      <div class="grid cols-3" id="pillarsGrid"></div>
+    </section>
+
+    <!-- =============== STRATEGY LAYER =============== -->
+    <section id="section-strategy" class="section">
+      <div class="page-head">
+        <div>
+          <h2 class="page-title" data-i18n="strat_title">Strategy Layer · Pillars &amp; Objectives</h2>
+          <p class="page-sub" data-i18n="strat_sub">Strategic objectives mapped to SGS Vision 2030 priorities — click any objective to drill into linked initiatives and KPIs</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter">
+          <label data-i18n="f_pillar">Pillar</label>
+          <select id="strategyPillarFilter"><option value="all" data-i18n="f_all">All</option></select>
+        </div>
+        <div class="filter">
+          <label data-i18n="f_status">Status</label>
+          <select id="strategyStatusFilter">
+            <option value="all" data-i18n="f_all">All</option>
+            <option value="green" data-i18n="rag_on_track">On Track</option>
+            <option value="amber" data-i18n="rag_at_risk">At Risk</option>
+            <option value="red" data-i18n="rag_off">Off Track</option>
+          </select>
+        </div>
+        <button class="filter-clear" onclick="clearStrategyFilters()" data-i18n="f_clear">Clear filters</button>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="tbl" id="strategyTable">
+            <thead>
+              <tr>
+                <th data-i18n="th_pillar">Pillar</th>
+                <th data-i18n="th_objective">Strategic Objective</th>
+                <th data-i18n="th_owner">Owner</th>
+                <th data-i18n="th_progress">Progress</th>
+                <th data-i18n="th_status">Status</th>
+                <th data-i18n="th_init_count">Initiatives</th>
+                <th data-i18n="th_kpi_count">KPIs</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== INITIATIVE LAYER =============== -->
+    <section id="section-initiatives" class="section">
+      <div class="page-head">
+        <div>
+          <h2 class="page-title" data-i18n="init_title">Initiative Layer · Strategic Initiatives</h2>
+          <p class="page-sub" data-i18n="init_sub">8 active initiatives with named owners, timelines, RAG status, and progress against plan</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter">
+          <label data-i18n="f_pillar">Pillar</label>
+          <select id="initPillarFilter"><option value="all" data-i18n="f_all">All</option></select>
+        </div>
+        <div class="filter">
+          <label data-i18n="f_owner">Owner</label>
+          <select id="initOwnerFilter"><option value="all" data-i18n="f_all">All</option></select>
+        </div>
+        <div class="filter">
+          <label data-i18n="f_status">Status</label>
+          <select id="initStatusFilter">
+            <option value="all" data-i18n="f_all">All</option>
+            <option value="green" data-i18n="rag_on_track">On Track</option>
+            <option value="amber" data-i18n="rag_at_risk">At Risk</option>
+            <option value="red" data-i18n="rag_off">Off Track</option>
+          </select>
+        </div>
+        <input class="search-input" id="initSearch" type="text" data-i18n-ph="search_init" placeholder="Search initiatives" />
+        <button class="filter-clear" onclick="clearInitFilters()" data-i18n="f_clear">Clear filters</button>
+      </div>
+
+      <div class="grid cols-3" id="initiativesGrid" style="margin-bottom:24px"></div>
+
+      <div class="section-divider">
+        <div class="bar"></div>
+        <div class="lbl" data-i18n="init_timeline_lbl">Timeline View</div>
+        <div class="bar"></div>
+      </div>
+      <div class="page-head">
+        <div>
+          <h2 class="page-title" data-i18n="gantt_title">Initiative Timeline · 2025–2027</h2>
+          <p class="page-sub" data-i18n="gantt_sub">Quarterly view of initiative durations with status color-coding</p>
+        </div>
+      </div>
+      <div class="gantt"><div class="gantt-inner" id="ganttInner"></div></div>
+    </section>
+
+    <!-- =============== KPI LAYER =============== -->
+    <section id="section-kpis" class="section">
+      <div class="page-head">
+        <div>
+          <h2 class="page-title" data-i18n="kpi_title">KPI Layer · Performance Indicators</h2>
+          <p class="page-sub" data-i18n="kpi_sub">Top-level KPIs linked to strategic objectives and initiatives — each shows target vs actual, trend, and source</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter">
+          <label data-i18n="f_category">Category</label>
+          <select id="kpiCatFilter"><option value="all" data-i18n="f_all">All</option></select>
+        </div>
+        <div class="filter">
+          <label data-i18n="f_pillar">Pillar</label>
+          <select id="kpiPillarFilter"><option value="all" data-i18n="f_all">All</option></select>
+        </div>
+        <div class="filter">
+          <label data-i18n="f_status">Status</label>
+          <select id="kpiStatusFilter">
+            <option value="all" data-i18n="f_all">All</option>
+            <option value="green" data-i18n="rag_on_track">On Track</option>
+            <option value="amber" data-i18n="rag_at_risk">At Risk</option>
+            <option value="red" data-i18n="rag_off">Off Track</option>
+          </select>
+        </div>
+        <button class="filter-clear" onclick="clearKpiFilters()" data-i18n="f_clear">Clear filters</button>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div data-i18n="footer_left">© 2026 Saudi Geological Survey · Strategy Implementation Office · Phase 1 illustrative dashboard</div>
+    <div class="v2030">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+      <span data-i18n="footer_right">Aligned with Saudi Vision 2030</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ============ DRAWER ============ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true">
+  <div class="drawer-head">
+    <div>
+      <div class="drawer-eyebrow" id="drawerEyebrow">DETAILS</div>
+      <h3 class="drawer-title" id="drawerTitle">—</h3>
+      <div class="drawer-sub" id="drawerSub">—</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<script>
+/* ============================================================
+   SGS · Strategy Execution Dashboard
+   Phase 1 · Illustrative content for executive review
+   ============================================================ */
+
+const I18N = {
+  en: {
+    org_name:"Saudi Geological Survey",
+    org_name_local:"هيئة المساحة الجيولوجية السعودية",
+    product:"Strategy Execution Dashboard · 2026",
+    user_role:"Strategy Implementation Office",
+    user_sub:"Executive view",
+    home:"Dashboard",
+    tab_overview:"Executive Summary",
+    tab_strategy:"Strategy Layer",
+    tab_initiatives:"Initiative Layer",
+    tab_kpis:"KPI Layer",
+
+    vision_eyebrow:"Vision 2030 · Strategy Execution",
+    vision_title:"Advancing the Kingdom's Geological Knowledge Base",
+    vision_desc:"Phase 1 view of strategy execution covering geological surveying, advanced technology adoption, environmental geology, digital data services, and international collaboration",
+
+    vs_overall:"Overall Strategy",
+    vs_pillars:"Pillars",
+    vs_init:"Initiatives",
+    vs_kpis:"Key KPIs",
+    apr_2026:"As of Apr 2026",
+
+    km_mapping:"National Mapping Coverage",
+    km_geo:"Airborne Survey Completion",
+    km_packages:"Datasets & Maps Published",
+    km_users:"Database Utilization Rate",
+    vs_q:"vs Q4'25",
+    this_y:"this year",
+    ytd:"YTD",
+
+    ov_overall:"Overall Strategy Progress",
+    ov_overall_sub:"Weighted across 5 pillars",
+    ov_complete:"Complete",
+    ov_rag_init:"Initiative Health",
+    ov_rag_init_sub:"RAG distribution across 8 initiatives",
+    ov_trend:"Strategy Progress Trend",
+    ov_trend_sub:"Quarterly weighted progress vs target",
+    ov_kpi_perf:"KPI Performance Snapshot",
+    ov_kpi_perf_sub:"Achievement vs target across all top-level KPIs",
+    ov_init_status:"Initiatives by Status",
+    ov_init_status_sub:"Active strategic initiatives",
+
+    rag_on_track:"On Track",
+    rag_at_risk:"At Risk",
+    rag_off:"Off Track",
+
+    strategic_pillars:"Strategic Pillars",
+    pillars_title:"Strategic Pillars at a Glance",
+    pillars_sub:"Click a pillar to drill into objectives, initiatives, and KPIs",
+
+    strat_title:"Strategy Layer · Pillars & Objectives",
+    strat_sub:"Strategic objectives mapped to SGS Vision 2030 priorities — click any objective to drill into linked initiatives and KPIs",
+
+    init_title:"Initiative Layer · Strategic Initiatives",
+    init_sub:"8 active initiatives with named owners, timelines, RAG status, and progress against plan",
+    init_timeline_lbl:"Timeline View",
+
+    kpi_title:"KPI Layer · Performance Indicators",
+    kpi_sub:"Top-level KPIs linked to strategic objectives and initiatives — each shows target vs actual, trend, and source",
+
+    gantt_title:"Initiative Timeline · 2025–2027",
+    gantt_sub:"Quarterly view of initiative durations with status color-coding",
+
+    f_pillar:"Pillar",
+    f_owner:"Owner",
+    f_status:"Status",
+    f_category:"Category",
+    f_all:"All",
+    f_clear:"Clear filters",
+    search_init:"Search initiatives",
+
+    th_pillar:"Pillar",
+    th_objective:"Strategic Objective",
+    th_owner:"Owner",
+    th_progress:"Progress",
+    th_status:"Status",
+    th_init_count:"Initiatives",
+    th_kpi_count:"KPIs",
+    th_initiative:"Initiative",
+
+    drawer_pillar:"Strategic Pillar",
+    drawer_objective:"Strategic Objective",
+    drawer_initiative:"Strategic Initiative",
+    drawer_kpi:"Key Performance Indicator",
+    drawer_overview:"Overview",
+    drawer_objectives:"Linked Objectives",
+    drawer_initiatives:"Linked Initiatives",
+    drawer_kpis:"Linked KPIs",
+    drawer_kpi_meta:"KPI Definition",
+    drawer_deps:"Dependencies",
+
+    footer_left:"© 2026 Saudi Geological Survey · Strategy Implementation Office · Phase 1 illustrative dashboard",
+    footer_right:"Aligned with Saudi Vision 2030",
+
+    target_lbl:"Target",
+    actual_lbl:"Actual",
+    progress_lbl:"Progress",
+    owner_lbl:"Owner",
+    timeline_lbl:"Timeline",
+    pillar_lbl:"Pillar",
+    objective_lbl:"Linked Objective",
+    method_lbl:"Calculation Method",
+    freq_lbl:"Reporting Frequency",
+    source_lbl:"Data Source",
+    last_updated:"Last updated",
+    of_target:"of target",
+    no_results:"No results match the current filters",
+    months:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    quarters:["Q1'25","Q2'25","Q3'25","Q4'25","Q1'26","Q2'26","Q3'26","Q4'26"],
+    achievement:"Achievement",
+    init_owner:"Initiative Owner",
+    init_role:"Role"
+  },
+  ar: {
+    org_name:"Saudi Geological Survey",
+    org_name_local:"هيئة المساحة الجيولوجية السعودية",
+    product:"لوحة متابعة تنفيذ الاستراتيجية · 2026",
+    user_role:"مكتب تنفيذ الاستراتيجية",
+    user_sub:"عرض تنفيذي",
+    home:"اللوحة الرئيسية",
+    tab_overview:"الملخص التنفيذي",
+    tab_strategy:"طبقة الاستراتيجية",
+    tab_initiatives:"طبقة المبادرات",
+    tab_kpis:"طبقة المؤشرات",
+
+    vision_eyebrow:"رؤية 2030 · تنفيذ الاستراتيجية",
+    vision_title:"النهوض بالقاعدة المعرفية الجيولوجية للمملكة",
+    vision_desc:"عرض المرحلة الأولى لتنفيذ الاستراتيجية يشمل المسح الجيولوجي وتبني التقنيات المتقدمة والجيولوجيا البيئية وخدمات البيانات الرقمية والتعاون الدولي",
+
+    vs_overall:"إجمالي الاستراتيجية",
+    vs_pillars:"المحاور",
+    vs_init:"المبادرات",
+    vs_kpis:"المؤشرات الرئيسية",
+    apr_2026:"حتى أبريل 2026",
+
+    km_mapping:"تغطية المسح الجيولوجي الوطني",
+    km_geo:"إنجاز المسح الجوي",
+    km_packages:"مجموعات البيانات والخرائط المنشورة",
+    km_users:"معدل استخدام قاعدة البيانات",
+    vs_q:"مقابل الربع الرابع 2025",
+    this_y:"هذا العام",
+    ytd:"منذ بداية العام",
+
+    ov_overall:"إجمالي تقدم الاستراتيجية",
+    ov_overall_sub:"مرجَّح عبر 5 محاور",
+    ov_complete:"مكتمل",
+    ov_rag_init:"صحة المبادرات",
+    ov_rag_init_sub:"توزيع RAG عبر 8 مبادرات",
+    ov_trend:"اتجاه تقدم الاستراتيجية",
+    ov_trend_sub:"التقدم المرجَّح ربعياً مقابل المستهدف",
+    ov_kpi_perf:"لقطة أداء المؤشرات",
+    ov_kpi_perf_sub:"الإنجاز مقابل المستهدف لكافة المؤشرات الرئيسية",
+    ov_init_status:"المبادرات حسب الحالة",
+    ov_init_status_sub:"المبادرات الاستراتيجية النشطة",
+
+    rag_on_track:"على المسار",
+    rag_at_risk:"تحت المخاطرة",
+    rag_off:"خارج المسار",
+
+    strategic_pillars:"المحاور الاستراتيجية",
+    pillars_title:"نظرة سريعة على المحاور الاستراتيجية",
+    pillars_sub:"اضغط على المحور لاستعراض الأهداف والمبادرات والمؤشرات",
+
+    strat_title:"طبقة الاستراتيجية · المحاور والأهداف",
+    strat_sub:"الأهداف الاستراتيجية المرتبطة بأولويات رؤية 2030 — اضغط على أي هدف للتعمق في المبادرات والمؤشرات",
+
+    init_title:"طبقة المبادرات · المبادرات الاستراتيجية",
+    init_sub:"8 مبادرات نشطة بأسماء ملاكها وجداولها الزمنية وحالتها (RAG) وتقدمها مقابل الخطة",
+    init_timeline_lbl:"العرض الزمني",
+
+    kpi_title:"طبقة المؤشرات · مؤشرات الأداء",
+    kpi_sub:"المؤشرات الرئيسية المرتبطة بالأهداف الاستراتيجية والمبادرات — كل منها يعرض المستهدف مقابل الفعلي والاتجاه والمصدر",
+
+    gantt_title:"الجدول الزمني للمبادرات · 2025–2027",
+    gantt_sub:"عرض ربعي لمدد المبادرات بألوان حالة الأداء",
+
+    f_pillar:"المحور",
+    f_owner:"المالك",
+    f_status:"الحالة",
+    f_category:"التصنيف",
+    f_all:"الكل",
+    f_clear:"مسح الفلاتر",
+    search_init:"ابحث في المبادرات",
+
+    th_pillar:"المحور",
+    th_objective:"الهدف الاستراتيجي",
+    th_owner:"المالك",
+    th_progress:"التقدم",
+    th_status:"الحالة",
+    th_init_count:"المبادرات",
+    th_kpi_count:"المؤشرات",
+    th_initiative:"المبادرة",
+
+    drawer_pillar:"المحور الاستراتيجي",
+    drawer_objective:"الهدف الاستراتيجي",
+    drawer_initiative:"المبادرة الاستراتيجية",
+    drawer_kpi:"مؤشر الأداء الرئيسي",
+    drawer_overview:"نظرة عامة",
+    drawer_objectives:"الأهداف المرتبطة",
+    drawer_initiatives:"المبادرات المرتبطة",
+    drawer_kpis:"المؤشرات المرتبطة",
+    drawer_kpi_meta:"تعريف المؤشر",
+    drawer_deps:"الاعتماديات",
+
+    footer_left:"© 2026 هيئة المساحة الجيولوجية السعودية · مكتب تنفيذ الاستراتيجية · لوحة المرحلة الأولى التوضيحية",
+    footer_right:"بالتوافق مع رؤية 2030",
+
+    target_lbl:"المستهدف",
+    actual_lbl:"الفعلي",
+    progress_lbl:"التقدم",
+    owner_lbl:"المالك",
+    timeline_lbl:"الفترة",
+    pillar_lbl:"المحور",
+    objective_lbl:"الهدف المرتبط",
+    method_lbl:"طريقة الاحتساب",
+    freq_lbl:"تكرار التقرير",
+    source_lbl:"مصدر البيانات",
+    last_updated:"آخر تحديث",
+    of_target:"من المستهدف",
+    no_results:"لا توجد نتائج مطابقة للفلاتر الحالية",
+    months:["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],
+    quarters:["ر1 ٢٥","ر2 ٢٥","ر3 ٢٥","ر4 ٢٥","ر1 ٢٦","ر2 ٢٦","ر3 ٢٦","ر4 ٢٦"],
+    achievement:"الإنجاز",
+    init_owner:"مالك المبادرة",
+    init_role:"الدور"
+  }
+};
+
+let LANG="en";
+const t = (k) => (I18N[LANG][k]!==undefined ? I18N[LANG][k] : k);
+
+/* ============ DATA ============ */
+const PILLARS = [
+  { id:"P1", code:"P1",
+    name:{en:"Geological Surveying & Exploration", ar:"المسح الجيولوجي والاستكشاف"},
+    desc:{en:"National geological mapping and mineral exploration foundation", ar:"الأساس الوطني للمسح الجيولوجي واستكشاف المعادن"},
+    progress:62, status:"green", iconKey:"map" },
+  { id:"P2", code:"P2",
+    name:{en:"Advanced Technology Adoption", ar:"تبني التقنيات المتقدمة"},
+    desc:{en:"Aerial surveying, geophysics, and modern geoscience capabilities", ar:"المسح الجوي والجيوفيزياء والقدرات الحديثة في علوم الأرض"},
+    progress:55, status:"amber", iconKey:"plane" },
+  { id:"P3", code:"P3",
+    name:{en:"Environmental Geology", ar:"الجيولوجيا البيئية"},
+    desc:{en:"Hazard monitoring and environmental geological baselines", ar:"رصد المخاطر وخطوط الأساس الجيولوجية البيئية"},
+    progress:51, status:"amber", iconKey:"env" },
+  { id:"P4", code:"P4",
+    name:{en:"Digital Transformation & Data Services", ar:"التحول الرقمي وخدمات البيانات"},
+    desc:{en:"Unified geological data platform and digital archive", ar:"منصة بيانات جيولوجية موحدة وأرشيف رقمي"},
+    progress:71, status:"green", iconKey:"data" },
+  { id:"P5", code:"P5",
+    name:{en:"International Collaboration & Stakeholder Excellence", ar:"التعاون الدولي والتميز مع المستفيدين"},
+    desc:{en:"Global partnerships and stakeholder data services", ar:"الشراكات العالمية وخدمات بيانات المستفيدين"},
+    progress:64, status:"green", iconKey:"globe" }
+];
+
+const OBJECTIVES = [
+  { id:"O1", pillar:"P1", name:{en:"Achieve full national 1:50,000 geological map coverage", ar:"تحقيق تغطية وطنية كاملة بمقياس 1:50,000"},
+    owner:{en:"Geological Mapping GM", ar:"الإدارة العامة للمسح الجيولوجي"}, progress:62, status:"green" },
+  { id:"O2", pillar:"P1", name:{en:"Expand mineral resource exploration & data publishing", ar:"توسيع استكشاف الموارد المعدنية ونشر البيانات"},
+    owner:{en:"Mineral Exploration GM", ar:"إدارة الاستكشاف المعدني"}, progress:58, status:"amber" },
+  { id:"O3", pillar:"P2", name:{en:"Deploy advanced aerial & airborne surveying capabilities", ar:"نشر قدرات متقدمة للمسح الجوي"},
+    owner:{en:"Surveying Technologies GM", ar:"إدارة تقنيات المسح"}, progress:54, status:"amber" },
+  { id:"O4", pillar:"P2", name:{en:"Mainstream advanced geoscience technologies", ar:"تعميم تقنيات علوم الأرض المتقدمة"},
+    owner:{en:"Surveying Technologies GM", ar:"إدارة تقنيات المسح"}, progress:50, status:"amber" },
+  { id:"O5", pillar:"P3", name:{en:"Expand geological hazard monitoring footprint", ar:"توسيع تغطية رصد المخاطر الجيولوجية"},
+    owner:{en:"Hazards & Environment GM", ar:"إدارة المخاطر والبيئة"}, progress:48, status:"amber" },
+  { id:"O6", pillar:"P3", name:{en:"Establish national environmental geology baselines", ar:"وضع خطوط أساس وطنية للجيولوجيا البيئية"},
+    owner:{en:"Hazards & Environment GM", ar:"إدارة المخاطر والبيئة"}, progress:54, status:"amber" },
+  { id:"O7", pillar:"P4", name:{en:"Build a unified national geological data platform", ar:"بناء منصة بيانات جيولوجية وطنية موحدة"},
+    owner:{en:"Digital & Data GM", ar:"إدارة الرقمنة والبيانات"}, progress:72, status:"green" },
+  { id:"O8", pillar:"P4", name:{en:"Accelerate digitization of legacy geological archives", ar:"تسريع رقمنة الأرشيف الجيولوجي التراثي"},
+    owner:{en:"Digital & Data GM", ar:"إدارة الرقمنة والبيانات"}, progress:78, status:"green" },
+  { id:"O9", pillar:"P5", name:{en:"Strengthen international institutional partnerships", ar:"تعزيز الشراكات المؤسسية الدولية"},
+    owner:{en:"International Affairs GM", ar:"إدارة الشؤون الدولية"}, progress:60, status:"green" },
+  { id:"O10", pillar:"P5", name:{en:"Elevate stakeholder data services experience", ar:"الارتقاء بتجربة خدمات البيانات للمستفيدين"},
+    owner:{en:"Stakeholder Services GM", ar:"إدارة خدمات المستفيدين"}, progress:66, status:"green" }
+];
+
+const INITIATIVES = [
+  { id:"I1", obj:"O1", pillar:"P1",
+    name:{en:"National Geological Mapping Program", ar:"البرنامج الوطني للمسح الجيولوجي"},
+    owner:{en:"Eng. Khalid Al-Otaibi", ar:"م. خالد العتيبي"},
+    ownerInitials:"KA",
+    ownerRole:{en:"GM, Geological Mapping", ar:"المدير العام للمسح الجيولوجي"},
+    start:"2024-01", end:"2027-06", progress:62, status:"green",
+    deps:[{en:"Airborne Survey Expansion", ar:"توسيع المسح الجوي"},{en:"Field logistics", ar:"اللوجستيات الميدانية"}],
+    desc:{en:"Complete 1:50,000 geological map coverage across the Kingdom, prioritizing the Arabian Shield and exploration belts", ar:"إكمال تغطية الخرائط الجيولوجية بمقياس 1:50,000 للمملكة، مع إعطاء الأولوية للدرع العربي وأحزمة الاستكشاف"},
+    iconKey:"map" },
+
+  { id:"I2", obj:"O3", pillar:"P2",
+    name:{en:"Airborne Geophysical Survey Expansion", ar:"توسيع المسح الجيوفيزيائي الجوي"},
+    owner:{en:"Dr. Amal Al-Harbi", ar:"د. أمل الحربي"},
+    ownerInitials:"AH",
+    ownerRole:{en:"GM, Surveying Technologies", ar:"المدير العام لتقنيات المسح"},
+    start:"2024-04", end:"2027-12", progress:54, status:"amber",
+    deps:[{en:"Aircraft procurement", ar:"شراء الطائرات"},{en:"GACA airspace coordination", ar:"التنسيق مع الطيران المدني"}],
+    desc:{en:"Expand fixed-wing magnetic, radiometric, and gravity survey coverage across more than 600,000 km² of priority belts", ar:"توسيع تغطية المسح المغناطيسي والإشعاعي والجاذبي الجوي لأكثر من 600,000 كم² من الأحزمة ذات الأولوية"},
+    iconKey:"plane" },
+
+  { id:"I3", obj:"O4", pillar:"P2",
+    name:{en:"Advanced Surveying Technology Enablement", ar:"تمكين تقنيات المسح المتقدمة"},
+    owner:{en:"Eng. Saleh Al-Dossary", ar:"م. صالح الدوسري"},
+    ownerInitials:"SD",
+    ownerRole:{en:"GM, Surveying Technologies", ar:"المدير العام لتقنيات المسح"},
+    start:"2025-01", end:"2027-03", progress:46, status:"amber",
+    deps:[{en:"Procurement", ar:"المشتريات"},{en:"Cybersecurity approval", ar:"اعتماد الأمن السيبراني"}],
+    desc:{en:"Enable UAV, LiDAR, hyperspectral, and high-resolution imaging across SGS field operations", ar:"تمكين الطائرات المسيرة وLiDAR والتصوير فائق الطيف وعالي الدقة في العمليات الميدانية"},
+    iconKey:"drone" },
+
+  { id:"I4", obj:"O2", pillar:"P1",
+    name:{en:"Mineral Resource Data Platform", ar:"منصة بيانات الموارد المعدنية"},
+    owner:{en:"Dr. Mohammed Al-Ghamdi", ar:"د. محمد الغامدي"},
+    ownerInitials:"MG",
+    ownerRole:{en:"GM, Mineral Exploration", ar:"المدير العام للاستكشاف المعدني"},
+    start:"2024-03", end:"2026-12", progress:58, status:"amber",
+    deps:[{en:"Mapping Program (I1)", ar:"برنامج المسح (I1)"},{en:"Airborne Survey (I2)", ar:"المسح الجوي (I2)"}],
+    desc:{en:"Build a unified mineral resource data platform supporting licensing rounds, investor decision-making, and Ministry of Industry & Mineral Resources alignment", ar:"بناء منصة موحدة لبيانات الموارد المعدنية تدعم جولات التراخيص وقرارات المستثمرين والتوافق مع وزارة الصناعة والثروة المعدنية"},
+    iconKey:"mineral" },
+
+  { id:"I5", obj:"O5", pillar:"P3",
+    name:{en:"Geological Hazard Monitoring System", ar:"نظام رصد المخاطر الجيولوجية"},
+    owner:{en:"Eng. Faisal Al-Zahrani", ar:"م. فيصل الزهراني"},
+    ownerInitials:"FZ",
+    ownerRole:{en:"GM, Hazards & Environment", ar:"المدير العام للمخاطر والبيئة"},
+    start:"2024-06", end:"2027-06", progress:48, status:"amber",
+    deps:[{en:"Telecom backhaul", ar:"وصلات الاتصالات"},{en:"NCM coordination", ar:"التنسيق مع المركز الوطني للأرصاد"}],
+    desc:{en:"Expand seismic, ground deformation, and landslide monitoring coverage across high-risk geological provinces", ar:"توسيع تغطية الرصد الزلزالي وتشوه الأرض والانهيارات في المناطق الجيولوجية عالية المخاطر"},
+    iconKey:"hazard" },
+
+  { id:"I6", obj:"O7", pillar:"P4",
+    name:{en:"Digital Geological Archive", ar:"الأرشيف الجيولوجي الرقمي"},
+    owner:{en:"Eng. Reem Al-Sulaiman", ar:"م. ريم السليمان"},
+    ownerInitials:"RS",
+    ownerRole:{en:"GM, Digital & Data", ar:"المديرة العامة للرقمنة والبيانات"},
+    start:"2024-07", end:"2026-09", progress:72, status:"green",
+    deps:[{en:"Cloud infrastructure", ar:"البنية السحابية"},{en:"Data governance framework", ar:"إطار حوكمة البيانات"}],
+    desc:{en:"Re-platform legacy archives, maps, and reports onto a modern cloud stack with FAIR-aligned governance and APIs", ar:"إعادة بناء الأرشيف والخرائط والتقارير القديمة على بنية سحابية حديثة مع حوكمة وواجهات برمجية"},
+    iconKey:"data" },
+
+  { id:"I7", obj:"O6", pillar:"P3",
+    name:{en:"Environmental Geology Program", ar:"برنامج الجيولوجيا البيئية"},
+    owner:{en:"Dr. Lina Al-Qahtani", ar:"د. لينا القحطاني"},
+    ownerInitials:"LQ",
+    ownerRole:{en:"GM, Hazards & Environment", ar:"المديرة العامة للمخاطر والبيئة"},
+    start:"2025-01", end:"2027-12", progress:42, status:"amber",
+    deps:[{en:"NCEC coordination", ar:"التنسيق مع المركز الوطني للالتزام البيئي"}],
+    desc:{en:"Deliver baseline environmental geology assessments for priority economic zones, coastal regions, and giga-project corridors", ar:"إعداد تقييمات أساسية للجيولوجيا البيئية للمناطق الاقتصادية الأولوية والسواحل وممرات المشاريع الكبرى"},
+    iconKey:"env" },
+
+  { id:"I8", obj:"O9", pillar:"P5",
+    name:{en:"International Geological Collaboration", ar:"التعاون الجيولوجي الدولي"},
+    owner:{en:"Eng. Noura Al-Mutairi", ar:"م. نورة المطيري"},
+    ownerInitials:"NM",
+    ownerRole:{en:"GM, International Affairs", ar:"المديرة العامة للشؤون الدولية"},
+    start:"2024-09", end:"2027-09", progress:60, status:"green",
+    deps:[{en:"USGS, BGS, BRGM MoUs", ar:"مذكرات تفاهم مع USGS وBGS وBRGM"},{en:"Future Minerals Forum", ar:"منتدى التعدين المستقبلي"}],
+    desc:{en:"Strengthen partnerships with leading geological survey institutions to accelerate knowledge transfer, joint research, and technical capability building", ar:"تعزيز الشراكات مع كبرى المؤسسات الجيولوجية لتسريع نقل المعرفة والبحث المشترك وبناء القدرات التقنية"},
+    iconKey:"globe" }
+];
+
+const KPIS = [
+  { id:"K1", obj:"O1", pillar:"P1", initId:"I1",
+    name:{en:"% completion of national geological mapping coverage", ar:"نسبة إنجاز التغطية الوطنية للمسح الجيولوجي"},
+    cat:{en:"Mapping", ar:"المسح الجيولوجي"},
+    target:75, actual:62, unit:"%", status:"amber",
+    history:[42,46,49,52,55,58,60,62],
+    method:{en:"Mapped area (1:50,000) ÷ planned coverage area × 100", ar:"المساحة الممسوحة (1:50,000) ÷ المساحة المخططة × 100"},
+    freq:{en:"Quarterly", ar:"ربع سنوي"},
+    source:{en:"Geological Mapping GM · Field & GIS systems", ar:"إدارة المسح الجيولوجي · الأنظمة الميدانية والـ GIS"} },
+
+  { id:"K2", obj:"O4", pillar:"P2", initId:"I3",
+    name:{en:"% adoption of advanced aerial surveying technologies", ar:"نسبة تبني تقنيات المسح الجوي المتقدمة"},
+    cat:{en:"Technology", ar:"التقنية"},
+    target:80, actual:62, unit:"%", status:"amber",
+    history:[30,38,44,50,54,57,60,62],
+    method:{en:"Survey output produced via advanced platforms ÷ total survey output × 100", ar:"المخرجات المنتجة عبر المنصات المتقدمة ÷ إجمالي المخرجات × 100"},
+    freq:{en:"Quarterly", ar:"ربع سنوي"},
+    source:{en:"Surveying Technologies GM · Operations dashboard", ar:"إدارة تقنيات المسح · لوحة العمليات"} },
+
+  { id:"K3", obj:"O3", pillar:"P2", initId:"I2",
+    name:{en:"% completion of airborne survey programs", ar:"نسبة إنجاز برامج المسح الجوي"},
+    cat:{en:"Surveying", ar:"المسح"},
+    target:60, actual:54, unit:"%", status:"amber",
+    history:[20,28,34,40,44,48,51,54],
+    method:{en:"Flight-line km surveyed ÷ total planned km × 100", ar:"كيلومترات الطيران المنفذة ÷ إجمالي المخطط × 100"},
+    freq:{en:"Quarterly", ar:"ربع سنوي"},
+    source:{en:"Surveying Technologies GM · Flight ops dashboard", ar:"إدارة تقنيات المسح · لوحة عمليات الطيران"} },
+
+  { id:"K4", obj:"O2", pillar:"P1", initId:"I4",
+    name:{en:"Number of geological datasets and maps published", ar:"عدد مجموعات البيانات والخرائط الجيولوجية المنشورة"},
+    cat:{en:"Data Products", ar:"منتجات البيانات"},
+    target:120, actual:87, unit:"", status:"amber",
+    history:[18,28,40,52,63,72,80,87],
+    method:{en:"Cumulative count of validated, publicly released datasets and maps", ar:"العدد التراكمي لمجموعات البيانات والخرائط المعتمدة والمنشورة"},
+    freq:{en:"Monthly", ar:"شهري"},
+    source:{en:"Mineral Exploration GM · Data Catalog", ar:"إدارة الاستكشاف المعدني · فهرس البيانات"} },
+
+  { id:"K5", obj:"O7", pillar:"P4", initId:"I6",
+    name:{en:"Geological database utilization rate", ar:"معدل استخدام قاعدة البيانات الجيولوجية"},
+    cat:{en:"Data Platform", ar:"منصة البيانات"},
+    target:85, actual:76, unit:"%", status:"amber",
+    history:[52,58,62,66,70,72,74,76],
+    method:{en:"Active sessions × dataset access ÷ targeted utilization benchmark", ar:"الجلسات النشطة × الوصول للبيانات ÷ المعيار المستهدف"},
+    freq:{en:"Monthly", ar:"شهري"},
+    source:{en:"Digital & Data GM · Platform analytics", ar:"إدارة الرقمنة والبيانات · تحليلات المنصة"} },
+
+  { id:"K6", obj:"O7", pillar:"P4", initId:"I6",
+    name:{en:"Average time to publish validated geological reports (days)", ar:"متوسط زمن نشر التقارير الجيولوجية المعتمدة (أيام)"},
+    cat:{en:"Service Performance", ar:"أداء الخدمة"},
+    target:21, actual:26, unit:"d", status:"amber", invert:true,
+    history:[42,38,35,32,30,29,27,26],
+    method:{en:"Mean elapsed days from QA approval to public release", ar:"متوسط الأيام من الاعتماد إلى النشر العام"},
+    freq:{en:"Monthly", ar:"شهري"},
+    source:{en:"Digital & Data GM · Publishing workflow", ar:"إدارة الرقمنة والبيانات · سير عمل النشر"} },
+
+  { id:"K7", obj:"O5", pillar:"P3", initId:"I5",
+    name:{en:"Coverage of geological hazard monitoring systems", ar:"تغطية أنظمة رصد المخاطر الجيولوجية"},
+    cat:{en:"Hazard Monitoring", ar:"رصد المخاطر"},
+    target:40, actual:28, unit:"%", status:"red",
+    history:[12,15,18,20,22,24,26,28],
+    method:{en:"Land area covered by ≥1 monitoring station ÷ Kingdom land area × 100", ar:"المساحة المغطاة بمحطة رصد واحدة على الأقل ÷ مساحة المملكة × 100"},
+    freq:{en:"Quarterly", ar:"ربع سنوي"},
+    source:{en:"Hazards & Environment GM · SEISMO-Net & GNSS", ar:"إدارة المخاطر والبيئة · شبكات الرصد"} },
+
+  { id:"K8", obj:"O10", pillar:"P5", initId:"I8",
+    name:{en:"Stakeholder satisfaction with geological data services", ar:"رضا المستفيدين عن خدمات البيانات الجيولوجية"},
+    cat:{en:"Stakeholder Experience", ar:"تجربة المستفيدين"},
+    target:85, actual:78, unit:"%", status:"amber",
+    history:[68,70,72,73,75,76,77,78],
+    method:{en:"Average CSAT score on annual stakeholder survey (top-2 box)", ar:"متوسط درجة الرضا في الاستبيان السنوي للمستفيدين (الفئتان الأعلى)"},
+    freq:{en:"Annual", ar:"سنوي"},
+    source:{en:"Stakeholder Services GM · CX survey", ar:"إدارة خدمات المستفيدين · استبيان تجربة المستفيدين"} },
+
+  { id:"K9", obj:"O9", pillar:"P5", initId:"I8",
+    name:{en:"Active international research partnerships", ar:"الشراكات البحثية الدولية النشطة"},
+    cat:{en:"International Collaboration", ar:"التعاون الدولي"},
+    target:18, actual:14, unit:"", status:"amber",
+    history:[6,7,9,10,11,12,13,14],
+    method:{en:"Number of active formal partnerships with overseas geological institutions", ar:"عدد الشراكات الرسمية النشطة مع المؤسسات الجيولوجية الخارجية"},
+    freq:{en:"Quarterly", ar:"ربع سنوي"},
+    source:{en:"International Affairs GM · Partnership registry", ar:"إدارة الشؤون الدولية · سجل الشراكات"} }
+];
+
+/* ============ ICONS ============ */
+const ICONS = {
+  map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>',
+  mineral:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 3l-3 6 3 12 3-12-3-6z"/></svg>',
+  hazard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18.5v.01"/></svg>',
+  data:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>',
+  plane:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 16l8-2 4-7 2-1 1 2-3 5 7-2 1 2-7 4-3 7-2-1 1-3-9 4z"/></svg>',
+  drone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 9L6 6M15 9l3-3M9 15l-3 3M15 15l3 3"/></svg>',
+  env:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c4-4 8-7 8-12a8 8 0 1 0-16 0c0 5 4 8 8 12z"/><path d="M12 6v8M8 10h8"/></svg>',
+  globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c3 4 3 16 0 20M12 2c-3 4-3 16 0 20"/></svg>'
+};
+
+/* ============ HELPERS ============ */
+function ragLabel(s){
+  if(s==="green") return t("rag_on_track");
+  if(s==="amber") return t("rag_at_risk");
+  if(s==="red") return t("rag_off");
+  return s;
+}
+function fmtNum(n){ return Number(n).toLocaleString(LANG==="ar"?"ar-SA":"en-US"); }
+const pillarById = id => PILLARS.find(p=>p.id===id);
+const objById = id => OBJECTIVES.find(o=>o.id===id);
+const initById = id => INITIATIVES.find(i=>i.id===id);
+const kpiById = id => KPIS.find(k=>k.id===id);
+const initiativesByObj = id => INITIATIVES.filter(i=>i.obj===id);
+const initiativesByPillar = id => INITIATIVES.filter(i=>i.pillar===id);
+const objectivesByPillar = id => OBJECTIVES.filter(o=>o.pillar===id);
+const kpisByObj = id => KPIS.filter(k=>k.obj===id);
+const kpisByInit = id => KPIS.filter(k=>k.initId===id);
+const kpisByPillar = id => KPIS.filter(k=>k.pillar===id);
+
+function pctOfTarget(k){
+  if(!k.invert) return Math.min(100, Math.round((k.actual/k.target)*100));
+  return Math.min(100, Math.round((k.target/k.actual)*100));
+}
+
+function setLang(lang){
+  LANG = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang==="ar"?"rtl":"ltr";
+  document.getElementById("lang-en").classList.toggle("active", lang==="en");
+  document.getElementById("lang-ar").classList.toggle("active", lang==="ar");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k=el.getAttribute("data-i18n");
+    if(I18N[lang][k]!==undefined) el.textContent = I18N[lang][k];
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    const k=el.getAttribute("data-i18n-ph");
+    if(I18N[lang][k]!==undefined) el.placeholder = I18N[lang][k];
+  });
+  buildPillarFilters(); buildOwnerFilters(); buildCategoryFilters();
+  renderPillars(); renderStrategyTable(); renderInitiatives(); renderGantt();
+  renderKpis(); renderInitSnapshot(); renderCharts(); updateCrumbs();
+}
+
+/* ============ TABS ============ */
+function activateTab(name){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b.dataset.tab===name));
+  document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active", s.id==="section-"+name));
+  updateCrumbs(name);
+  if(name==="overview") { renderCharts(); renderInitSnapshot(); }
+  if(name==="initiatives") renderGantt();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>activateTab(b.dataset.tab)));
+
+function currentTab(){ const a=document.querySelector(".tab.active"); return a?a.dataset.tab:"overview"; }
+function updateCrumbs(name){
+  const c=document.getElementById("crumbs");
+  const tab = name||currentTab();
+  c.innerHTML = `<span class="crumb-link" onclick="activateTab('overview')">${t("home")}</span> <span class="sep">›</span> <span>${t("tab_"+tab)}</span>`;
+}
+
+/* ============ PILLARS GRID ============ */
+function renderPillars(){
+  const grid=document.getElementById("pillarsGrid");
+  grid.innerHTML="";
+  PILLARS.forEach(p=>{
+    const objs=objectivesByPillar(p.id), inits=initiativesByPillar(p.id), kps=kpisByPillar(p.id);
+    const card=document.createElement("div");
+    card.className="card pillar-card";
+    card.onclick=()=>openPillarDrawer(p.id);
+    card.innerHTML=`
+      <div class="pillar-head">
+        <div class="pillar-icon">${ICONS[p.iconKey]}</div>
+        <div style="flex:1">
+          <div class="pillar-code">${p.code} · ${ragLabel(p.status).toUpperCase()}</div>
+          <h3 class="pillar-name">${p.name[LANG]}</h3>
+          <p class="card-sub" style="margin-top:6px">${p.desc[LANG]}</p>
+        </div>
+        <span class="rag ${p.status}"><span class="dot"></span>${ragLabel(p.status)}</span>
+      </div>
+      <div class="progress-row">
+        <div class="bar ${p.status==='green'?'':p.status}"><span style="width:${p.progress}%"></span></div>
+        <div class="pct">${p.progress}%</div>
+      </div>
+      <div class="pillar-stats">
+        <div class="pillar-stat"><div class="v">${objs.length}</div><div class="l">${t("th_objective")}</div></div>
+        <div class="pillar-stat"><div class="v">${inits.length}</div><div class="l">${t("vs_init")}</div></div>
+        <div class="pillar-stat"><div class="v">${kps.length}</div><div class="l">${t("vs_kpis")}</div></div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ============ STRATEGY TABLE ============ */
+function renderStrategyTable(){
+  const tbody=document.querySelector("#strategyTable tbody");
+  const pf=document.getElementById("strategyPillarFilter").value;
+  const sf=document.getElementById("strategyStatusFilter").value;
+  tbody.innerHTML="";
+  let rows = OBJECTIVES.slice();
+  if(pf!=="all") rows = rows.filter(r=>r.pillar===pf);
+  if(sf!=="all") rows = rows.filter(r=>r.status===sf);
+  if(!rows.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">${t("no_results")}</td></tr>`;
+    return;
+  }
+  rows.forEach(o=>{
+    const p=pillarById(o.pillar);
+    const inits=initiativesByObj(o.id);
+    const kps=kpisByObj(o.id);
+    const tr=document.createElement("tr");
+    tr.style.cursor="pointer";
+    tr.onclick=()=>openObjectiveDrawer(o.id);
+    tr.innerHTML=`
+      <td><span class="tag">${p.code}</span> <span style="margin:0 6px;color:var(--muted)">·</span> <span style="color:var(--ink)">${p.name[LANG]}</span></td>
+      <td><strong style="color:var(--ink)">${o.name[LANG]}</strong></td>
+      <td>${o.owner[LANG]}</td>
+      <td style="min-width:200px"><div class="progress-row"><div class="bar ${o.status==='green'?'':o.status}"><span style="width:${o.progress}%"></span></div><div class="pct">${o.progress}%</div></div></td>
+      <td><span class="rag ${o.status}"><span class="dot"></span>${ragLabel(o.status)}</span></td>
+      <td class="num">${inits.length}</td>
+      <td class="num">${kps.length}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============ INITIATIVES ============ */
+function renderInitiatives(){
+  const grid=document.getElementById("initiativesGrid");
+  grid.innerHTML="";
+  const pf=document.getElementById("initPillarFilter").value;
+  const of_=document.getElementById("initOwnerFilter").value;
+  const sf=document.getElementById("initStatusFilter").value;
+  const q=(document.getElementById("initSearch").value||"").trim().toLowerCase();
+  let rows=INITIATIVES.slice();
+  if(pf!=="all") rows=rows.filter(r=>r.pillar===pf);
+  if(of_!=="all") rows=rows.filter(r=>r.owner.en===of_);
+  if(sf!=="all") rows=rows.filter(r=>r.status===sf);
+  if(q) rows=rows.filter(r => (r.name.en+r.name.ar+r.owner.en+r.owner.ar).toLowerCase().includes(q));
+  if(!rows.length){
+    grid.innerHTML=`<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px">${t("no_results")}</div>`;
+    return;
+  }
+  rows.forEach(i=>{
+    const p=pillarById(i.pillar);
+    const o=objById(i.obj);
+    const card=document.createElement("div");
+    card.className="init-card";
+    card.onclick=()=>openInitDrawer(i.id);
+    card.innerHTML=`
+      <div class="init-top">
+        <div style="display:flex;align-items:flex-start;gap:11px;flex:1">
+          <div style="width:38px;height:38px;border-radius:10px;background:rgba(42,157,154,.12);color:var(--teal-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(42,157,154,.25)">${ICONS[i.iconKey]||ICONS.data}</div>
+          <div>
+            <div class="init-pillar-tag">${p.code} · ${p.name[LANG]}</div>
+            <h4 class="init-title">${i.name[LANG]}</h4>
+          </div>
+        </div>
+        <span class="rag ${i.status}"><span class="dot"></span>${ragLabel(i.status)}</span>
+      </div>
+      <div class="init-meta">
+        <div class="m" style="grid-column:1/-1">
+          <div class="lab">${t("init_owner")}</div>
+          <div class="owner-pill">
+            <span class="av">${i.ownerInitials}</span>
+            <span><strong>${i.owner[LANG]}</strong> · <span style="color:var(--muted)">${i.ownerRole[LANG]}</span></span>
+          </div>
+        </div>
+        <div class="m">
+          <div class="lab">${t("timeline_lbl")}</div>
+          <div class="val"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>${formatYearMonth(i.start)} – ${formatYearMonth(i.end)}</div>
+        </div>
+        <div class="m">
+          <div class="lab">${t("objective_lbl")}</div>
+          <div class="val" style="font-weight:500;color:var(--ink-2);font-size:11.5px">${o.name[LANG]}</div>
+        </div>
+      </div>
+      <div class="progress-row"><div class="bar ${i.status==='green'?'':i.status}"><span style="width:${i.progress}%"></span></div><div class="pct">${i.progress}%</div></div>
+      <div class="init-deps">${(i.deps||[]).map(d=>`<span class="dep-chip">${d[LANG]}</span>`).join("")}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function formatYearMonth(s){
+  const [y,m]=s.split("-").map(Number);
+  return `${I18N[LANG].months[m-1]} ${y}`;
+}
+
+/* ============ GANTT ============ */
+function renderGantt(){
+  const root=document.getElementById("ganttInner");
+  const quarters=I18N[LANG].quarters.concat(["Q1'27","Q2'27","Q3'27","Q4'27"]);
+  // Use English labels mapping for 2027 quarters in Arabic
+  const quartersAr=["ر1 ٢٥","ر2 ٢٥","ر3 ٢٥","ر4 ٢٥","ر1 ٢٦","ر2 ٢٦","ر3 ٢٦","ر4 ٢٦","ر1 ٢٧","ر2 ٢٧","ر3 ٢٧","ر4 ٢٧"];
+  const quartersEn=["Q1'25","Q2'25","Q3'25","Q4'25","Q1'26","Q2'26","Q3'26","Q4'26","Q1'27","Q2'27","Q3'27","Q4'27"];
+  const qLabels = LANG==="ar"?quartersAr:quartersEn;
+
+  const QStart = new Date(2025,0,1).getTime();
+  const QEnd   = new Date(2028,0,1).getTime();
+  const total  = QEnd - QStart;
+
+  const header = `
+    <div class="gantt-head">${t("th_initiative")}</div>
+    <div class="gantt-months" style="grid-template-columns:repeat(${qLabels.length},1fr)">
+      ${qLabels.map(q=>`<div class="gantt-month">${q}</div>`).join("")}
+    </div>
+  `;
+
+  let rowsHtml="";
+  INITIATIVES.forEach(i=>{
+    const sParts=i.start.split("-").map(Number);
+    const eParts=i.end.split("-").map(Number);
+    const sT=new Date(sParts[0],sParts[1]-1,1).getTime();
+    const eT=new Date(eParts[0],eParts[1]-1,28).getTime();
+    const left = Math.max(0,(sT-QStart)/total*100);
+    const width = Math.max(2,(eT-sT)/total*100);
+    const cls = i.status==='green'?'':i.status;
+    const p=pillarById(i.pillar);
+    const dirStyle = LANG==='ar'?`right:${left}%;left:auto;width:${width}%;`:`left:${left}%;width:${width}%;`;
+    rowsHtml += `
+      <div class="gantt-row">
+        <div class="label">
+          <div>${i.name[LANG]}</div>
+          <div class="small"><span class="av">${i.ownerInitials}</span>${i.owner[LANG]}</div>
+          <div class="small" style="color:var(--gold-2)">${p.code}</div>
+        </div>
+        <div class="track">
+          <div class="gantt-bar ${cls}" style="${dirStyle}" onclick="event.stopPropagation();openInitDrawer('${i.id}')">
+            <div class="progress-fill" style="width:${100-i.progress}%;${LANG==='ar'?'left:0;right:auto':'right:0;left:auto'}"></div>
+            <span style="position:relative;z-index:1">${i.progress}%</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  const today = new Date(2026,3,28).getTime();
+  const todayPct = (today-QStart)/total*100;
+
+  root.innerHTML = header + rowsHtml;
+  document.querySelectorAll("#ganttInner .track").forEach(tr=>{
+    const t1=document.createElement("div");
+    t1.className="gantt-today";
+    if(LANG==='ar'){ t1.style.right = todayPct+"%"; t1.style.left='auto'; }
+    else { t1.style.left = todayPct+"%"; }
+    tr.appendChild(t1);
+  });
+}
+
+/* ============ KPIs ============ */
+function renderKpis(){
+  const grid=document.getElementById("kpiGrid");
+  grid.innerHTML="";
+  const cf=document.getElementById("kpiCatFilter").value;
+  const pf=document.getElementById("kpiPillarFilter").value;
+  const sf=document.getElementById("kpiStatusFilter").value;
+  let rows=KPIS.slice();
+  if(cf!=="all") rows=rows.filter(r=>r.cat.en===cf);
+  if(pf!=="all") rows=rows.filter(r=>r.pillar===pf);
+  if(sf!=="all") rows=rows.filter(r=>r.status===sf);
+  if(!rows.length){
+    grid.innerHTML=`<div class="card" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:30px">${t("no_results")}</div>`;
+    return;
+  }
+  rows.forEach(k=>{
+    const p=pillarById(k.pillar);
+    const ach=pctOfTarget(k);
+    const card=document.createElement("div");
+    card.className="card kpi-card";
+    card.onclick=()=>openKpiDrawer(k.id);
+    card.innerHTML=`
+      <div class="h">
+        <div>
+          <div class="cat">${k.cat[LANG]} · ${p.code}</div>
+          <div class="name">${k.name[LANG]}</div>
+        </div>
+        <span class="rag ${k.status}"><span class="dot"></span>${ragLabel(k.status)}</span>
+      </div>
+      <div>${sparkline(k.history, k.status)}</div>
+      <div class="vals">
+        <div>
+          <div class="actual">${fmtNum(k.actual)}<span style="font-size:13px;color:var(--muted);font-weight:600;margin-left:3px">${k.unit}</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:5px">${ach}% ${t("of_target")}</div>
+        </div>
+        <div class="target">
+          <div>${t("target_lbl")}</div>
+          <div class="t-val">${fmtNum(k.target)}${k.unit}</div>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span>${k.freq[LANG]}</span>
+        <span>${t("last_updated")}: Apr 2026</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function sparkline(values, status){
+  const w=240, h=48, pad=4;
+  const min=Math.min(...values), max=Math.max(...values);
+  const range = (max-min)||1;
+  const stepX = (w-pad*2)/(values.length-1);
+  const pts = values.map((v,i)=>{
+    const x = pad + i*stepX;
+    const y = h-pad - ((v-min)/range)*(h-pad*2);
+    return [x,y];
+  });
+  const d = pts.map((p,i)=> (i===0?"M":"L")+p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+  const dArea = d + ` L ${pts[pts.length-1][0]},${h-pad} L ${pts[0][0]},${h-pad} Z`;
+  const color = status==='red'?'#E76051':status==='amber'?'#E8B043':'#3FCB7E';
+  const grad = `lin-${Math.random().toString(36).slice(2,8)}`;
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <defs><linearGradient id="${grad}" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity=".30"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${dArea}" fill="url(#${grad})"/>
+    <path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="3.2" fill="${color}" stroke="#0F2A2E" stroke-width="1.5"/>
+  </svg>`;
+}
+
+/* ============ INIT SNAPSHOT (Overview) ============ */
+function renderInitSnapshot(){
+  const root=document.getElementById("initSnapshot");
+  if(!root) return;
+  const counts={green:0,amber:0,red:0};
+  INITIATIVES.forEach(i=>counts[i.status]++);
+  const rows = [
+    {key:"green",label:t("rag_on_track"),v:counts.green,color:"var(--rag-green)"},
+    {key:"amber",label:t("rag_at_risk"),v:counts.amber,color:"var(--rag-amber)"},
+    {key:"red",label:t("rag_off"),v:counts.red,color:"var(--rag-red)"}
+  ];
+  const total = INITIATIVES.length;
+  root.innerHTML = rows.map(r=>{
+    const pct = Math.round(r.v/total*100);
+    return `
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:24px;height:24px;border-radius:6px;background:${r.color};opacity:.9;display:flex;align-items:center;justify-content:center;color:#0A1F23;font-weight:800;font-size:11px">${r.v}</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--ink-2);font-weight:600">${r.label}</span><span style="color:var(--muted);font-variant-numeric:tabular-nums">${pct}%</span></div>
+          <div class="bar"><span style="width:${pct}%;background:${r.color}"></span></div>
+        </div>
+      </div>`;
+  }).join("");
+  // Add a tiny owner roster
+  root.insertAdjacentHTML('beforeend',`
+    <div style="border-top:1px dashed var(--line-2);padding-top:12px;margin-top:8px">
+      <div style="font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.6px;margin-bottom:8px;text-transform:uppercase">${LANG==='ar'?'ملاك المبادرات':'Initiative Owners'}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${INITIATIVES.map(i=>`<div style="display:flex;align-items:center;gap:8px;font-size:11.5px"><span style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--gold-2),var(--bronze));color:#16221A;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:9.5px;flex-shrink:0">${i.ownerInitials}</span><span style="color:var(--ink-2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.owner[LANG]}</span><span class="rag ${i.status}" style="padding:2px 6px;font-size:9.5px"><span class="dot"></span>${i.progress}%</span></div>`).join("")}
+      </div>
+    </div>
+  `);
+}
+
+/* ============ DRAWER ============ */
+function openDrawer(){
+  document.getElementById("drawerOverlay").classList.add("show");
+  document.getElementById("drawer").classList.add("show");
+  document.body.style.overflow="hidden";
+}
+function closeDrawer(){
+  document.getElementById("drawerOverlay").classList.remove("show");
+  document.getElementById("drawer").classList.remove("show");
+  document.body.style.overflow="";
+}
+
+function openPillarDrawer(pId){
+  const p=pillarById(pId);
+  const objs=objectivesByPillar(pId), inits=initiativesByPillar(pId), kps=kpisByPillar(pId);
+  document.getElementById("drawerEyebrow").textContent = t("drawer_pillar")+" · "+p.code;
+  document.getElementById("drawerTitle").textContent = p.name[LANG];
+  document.getElementById("drawerSub").textContent = p.desc[LANG];
+  document.getElementById("drawerBody").innerHTML = `
+    <div class="detail-block">
+      <h4>${t("drawer_overview")}</h4>
+      <div class="summary-grid">
+        <div class="s"><div class="v">${p.progress}%</div><div class="l">${t("progress_lbl")}</div></div>
+        <div class="s"><div class="v">${objs.length}</div><div class="l">${t("th_objective")}</div></div>
+        <div class="s"><div class="v">${inits.length}</div><div class="l">${t("vs_init")}</div></div>
+        <div class="s"><div class="v">${kps.length}</div><div class="l">${t("vs_kpis")}</div></div>
+      </div>
+      <div class="progress-row" style="margin-top:14px"><div class="bar ${p.status==='green'?'':p.status}"><span style="width:${p.progress}%"></span></div><div class="pct">${p.progress}%</div></div>
+      <div style="margin-top:10px"><span class="rag ${p.status}"><span class="dot"></span>${ragLabel(p.status)}</span></div>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_objectives")}</h4>
+      <ul class="list-clean">
+        ${objs.map(o=>`<li onclick="openObjectiveDrawer('${o.id}')">
+          <div><div class="name">${o.name[LANG]}</div><div class="sub">${o.owner[LANG]}</div></div>
+          <span class="rag ${o.status}"><span class="dot"></span>${o.progress}%</span>
+        </li>`).join("")}
+      </ul>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_initiatives")}</h4>
+      <ul class="list-clean">
+        ${inits.map(i=>`<li onclick="openInitDrawer('${i.id}')">
+          <div><div class="name">${i.name[LANG]}</div><div class="sub">${i.owner[LANG]}</div></div>
+          <span class="rag ${i.status}"><span class="dot"></span>${i.progress}%</span>
+        </li>`).join("")}
+      </ul>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_kpis")}</h4>
+      <ul class="list-clean">
+        ${kps.map(k=>`<li onclick="openKpiDrawer('${k.id}')">
+          <div><div class="name">${k.name[LANG]}</div><div class="sub">${k.cat[LANG]}</div></div>
+          <div style="text-align:right;font-weight:700;color:var(--ink)">${fmtNum(k.actual)}${k.unit} <span style="color:var(--muted);font-weight:500">/ ${fmtNum(k.target)}${k.unit}</span></div>
+        </li>`).join("")}
+      </ul>
+    </div>
+  `;
+  openDrawer();
+}
+
+function openObjectiveDrawer(oId){
+  const o=objById(oId);
+  const p=pillarById(o.pillar);
+  const inits=initiativesByObj(oId);
+  const kps=kpisByObj(oId);
+  document.getElementById("drawerEyebrow").textContent = t("drawer_objective")+" · "+o.id;
+  document.getElementById("drawerTitle").textContent = o.name[LANG];
+  document.getElementById("drawerSub").textContent = `${p.code} · ${p.name[LANG]}`;
+  document.getElementById("drawerBody").innerHTML = `
+    <div class="detail-block">
+      <h4>${t("drawer_overview")}</h4>
+      <div class="kv">
+        <div class="k">${t("owner_lbl")}</div><div class="v">${o.owner[LANG]}</div>
+        <div class="k">${t("pillar_lbl")}</div><div class="v">${p.name[LANG]}</div>
+        <div class="k">${t("progress_lbl")}</div><div class="v">${o.progress}% · <span class="rag ${o.status}"><span class="dot"></span>${ragLabel(o.status)}</span></div>
+      </div>
+      <div class="progress-row" style="margin-top:12px"><div class="bar ${o.status==='green'?'':o.status}"><span style="width:${o.progress}%"></span></div><div class="pct">${o.progress}%</div></div>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_initiatives")}</h4>
+      <ul class="list-clean">
+        ${inits.map(i=>`<li onclick="openInitDrawer('${i.id}')">
+          <div><div class="name">${i.name[LANG]}</div><div class="sub">${i.owner[LANG]} · ${formatYearMonth(i.start)}–${formatYearMonth(i.end)}</div></div>
+          <span class="rag ${i.status}"><span class="dot"></span>${i.progress}%</span>
+        </li>`).join("")}
+      </ul>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_kpis")}</h4>
+      <ul class="list-clean">
+        ${kps.map(k=>`<li onclick="openKpiDrawer('${k.id}')">
+          <div><div class="name">${k.name[LANG]}</div><div class="sub">${k.cat[LANG]}</div></div>
+          <div style="text-align:right;font-weight:700;color:var(--ink)">${fmtNum(k.actual)}${k.unit} <span style="color:var(--muted);font-weight:500">/ ${fmtNum(k.target)}${k.unit}</span></div>
+        </li>`).join("")}
+      </ul>
+    </div>
+  `;
+  openDrawer();
+}
+
+function openInitDrawer(iId){
+  const i=initById(iId);
+  const p=pillarById(i.pillar);
+  const o=objById(i.obj);
+  const kps=kpisByInit(iId);
+  document.getElementById("drawerEyebrow").textContent = t("drawer_initiative")+" · "+i.id;
+  document.getElementById("drawerTitle").textContent = i.name[LANG];
+  document.getElementById("drawerSub").textContent = `${p.code} · ${p.name[LANG]}`;
+  document.getElementById("drawerBody").innerHTML = `
+    <div class="detail-block">
+      <h4>${t("drawer_overview")}</h4>
+      <p style="margin:0 0 14px;color:var(--ink-2);font-size:13.5px;line-height:1.55">${i.desc[LANG]}</p>
+      <div style="display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:14px">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold-2),var(--bronze));color:#16221A;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${i.ownerInitials}</div>
+        <div>
+          <div style="font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase">${t("init_owner")}</div>
+          <div style="font-weight:700;color:var(--ink);font-size:13.5px;margin-top:2px">${i.owner[LANG]}</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:1px">${i.ownerRole[LANG]}</div>
+        </div>
+      </div>
+      <div class="kv">
+        <div class="k">${t("objective_lbl")}</div><div class="v">${o.name[LANG]}</div>
+        <div class="k">${t("timeline_lbl")}</div><div class="v">${formatYearMonth(i.start)} – ${formatYearMonth(i.end)}</div>
+        <div class="k">${t("progress_lbl")}</div><div class="v">${i.progress}% · <span class="rag ${i.status}"><span class="dot"></span>${ragLabel(i.status)}</span></div>
+      </div>
+      <div class="progress-row" style="margin-top:12px"><div class="bar ${i.status==='green'?'':i.status}"><span style="width:${i.progress}%"></span></div><div class="pct">${i.progress}%</div></div>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_deps")}</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${(i.deps||[]).map(d=>`<span class="dep-chip" style="font-size:12px;padding:6px 12px">${d[LANG]}</span>`).join("")}
+      </div>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_kpis")}</h4>
+      <ul class="list-clean">
+        ${kps.length? kps.map(k=>`<li onclick="openKpiDrawer('${k.id}')">
+          <div><div class="name">${k.name[LANG]}</div><div class="sub">${k.cat[LANG]}</div></div>
+          <div style="text-align:right;font-weight:700;color:var(--ink)">${fmtNum(k.actual)}${k.unit} <span style="color:var(--muted);font-weight:500">/ ${fmtNum(k.target)}${k.unit}</span></div>
+        </li>`).join("") : `<li style="justify-content:center;color:var(--muted)">—</li>`}
+      </ul>
+    </div>
+  `;
+  openDrawer();
+}
+
+function openKpiDrawer(kId){
+  const k=kpiById(kId);
+  const p=pillarById(k.pillar);
+  const o=objById(k.obj);
+  const i=initById(k.initId);
+  const ach=pctOfTarget(k);
+  document.getElementById("drawerEyebrow").textContent = t("drawer_kpi")+" · "+k.id;
+  document.getElementById("drawerTitle").textContent = k.name[LANG];
+  document.getElementById("drawerSub").textContent = `${p.code} · ${k.cat[LANG]}`;
+  document.getElementById("drawerBody").innerHTML = `
+    <div class="detail-block">
+      <h4>${t("drawer_overview")}</h4>
+      <div class="summary-grid">
+        <div class="s"><div class="v">${fmtNum(k.actual)}${k.unit}</div><div class="l">${t("actual_lbl")}</div></div>
+        <div class="s"><div class="v">${fmtNum(k.target)}${k.unit}</div><div class="l">${t("target_lbl")}</div></div>
+        <div class="s"><div class="v">${ach}%</div><div class="l">${t("achievement")}</div></div>
+        <div class="s"><div style="margin-top:2px"><span class="rag ${k.status}" style="padding:3px 8px;font-size:10px"><span class="dot"></span>${ragLabel(k.status)}</span></div><div class="l">${t("th_status")}</div></div>
+      </div>
+      <div style="margin-top:14px;padding:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px">
+        ${sparkline(k.history,k.status)}
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px">
+          ${I18N[LANG].quarters.map(q=>`<span>${q}</span>`).join("")}
+        </div>
+      </div>
+    </div>
+    <div class="detail-block">
+      <h4>${t("drawer_kpi_meta")}</h4>
+      <div class="kv">
+        <div class="k">${t("method_lbl")}</div><div class="v">${k.method[LANG]}</div>
+        <div class="k">${t("freq_lbl")}</div><div class="v">${k.freq[LANG]}</div>
+        <div class="k">${t("source_lbl")}</div><div class="v">${k.source[LANG]}</div>
+        <div class="k">${t("pillar_lbl")}</div><div class="v">${p.name[LANG]}</div>
+        <div class="k">${t("objective_lbl")}</div><div class="v">${o.name[LANG]}</div>
+        <div class="k">${t("th_initiative")}</div><div class="v">${i?i.name[LANG]:"—"}</div>
+      </div>
+    </div>
+  `;
+  openDrawer();
+}
+
+/* ============ FILTERS ============ */
+function buildPillarFilters(){
+  ["strategyPillarFilter","initPillarFilter","kpiPillarFilter"].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel) return;
+    const cur=sel.value||"all";
+    sel.innerHTML = `<option value="all">${t("f_all")}</option>` + PILLARS.map(p=>`<option value="${p.id}">${p.code} · ${p.name[LANG]}</option>`).join("");
+    sel.value=cur;
+  });
+}
+function buildOwnerFilters(){
+  const owners=[...new Set(INITIATIVES.map(i=>i.owner.en))].map(en=>{
+    const found=INITIATIVES.find(i=>i.owner.en===en);
+    return {en, ar:found.owner.ar};
+  });
+  const sel=document.getElementById("initOwnerFilter");
+  const cur=sel.value||"all";
+  sel.innerHTML = `<option value="all">${t("f_all")}</option>` + owners.map(o=>`<option value="${o.en}">${o[LANG]}</option>`).join("");
+  sel.value=cur;
+}
+function buildCategoryFilters(){
+  const cats=[...new Set(KPIS.map(k=>k.cat.en))].map(en=>{
+    const found=KPIS.find(k=>k.cat.en===en);
+    return {en, ar:found.cat.ar};
+  });
+  const sel=document.getElementById("kpiCatFilter");
+  const cur=sel.value||"all";
+  sel.innerHTML = `<option value="all">${t("f_all")}</option>` + cats.map(c=>`<option value="${c.en}">${c[LANG]}</option>`).join("");
+  sel.value=cur;
+}
+
+function clearStrategyFilters(){
+  document.getElementById("strategyPillarFilter").value="all";
+  document.getElementById("strategyStatusFilter").value="all";
+  renderStrategyTable();
+}
+function clearInitFilters(){
+  document.getElementById("initPillarFilter").value="all";
+  document.getElementById("initOwnerFilter").value="all";
+  document.getElementById("initStatusFilter").value="all";
+  document.getElementById("initSearch").value="";
+  renderInitiatives();
+}
+function clearKpiFilters(){
+  document.getElementById("kpiCatFilter").value="all";
+  document.getElementById("kpiPillarFilter").value="all";
+  document.getElementById("kpiStatusFilter").value="all";
+  renderKpis();
+}
+
+/* ============ CHARTS ============ */
+let ragChart=null, trendChart=null, kpiBarChart=null;
+function renderCharts(){
+  Chart.defaults.color = "#A8BAB8";
+  Chart.defaults.borderColor = "#23454C";
+  Chart.defaults.font.family = LANG==='ar'?"Cairo, Inter":"Inter";
+
+  const counts={green:0,amber:0,red:0};
+  INITIATIVES.forEach(i=>counts[i.status]++);
+  const ctx1=document.getElementById("ragInitChart");
+  if(ctx1){
+    if(ragChart) ragChart.destroy();
+    ragChart = new Chart(ctx1,{
+      type:"doughnut",
+      data:{
+        labels:[t("rag_on_track"),t("rag_at_risk"),t("rag_off")],
+        datasets:[{
+          data:[counts.green,counts.amber,counts.red],
+          backgroundColor:["#3FCB7E","#E8B043","#E76051"],
+          borderColor:"#0D2226",
+          borderWidth:3
+        }]
+      },
+      options:{
+        plugins:{legend:{position:"bottom",labels:{font:{family:LANG==='ar'?"Cairo":"Inter",size:12},color:"#C9D6D4"}}},
+        cutout:"62%",
+        maintainAspectRatio:false
+      }
+    });
+  }
+
+  const ctx2=document.getElementById("trendChart");
+  if(ctx2){
+    if(trendChart) trendChart.destroy();
+    trendChart = new Chart(ctx2,{
+      type:"line",
+      data:{
+        labels:I18N[LANG].quarters,
+        datasets:[{
+          label:t("vs_overall"),
+          data:[38,44,49,54,57,60,62,63],
+          borderColor:"#3FB7B3",
+          backgroundColor:(ctx)=>{
+            const c = ctx.chart.ctx;
+            const g = c.createLinearGradient(0,0,0,200);
+            g.addColorStop(0,"rgba(63,183,179,.35)");
+            g.addColorStop(1,"rgba(63,183,179,0)");
+            return g;
+          },
+          fill:true, tension:.35, pointRadius:3,
+          pointBackgroundColor:"#3FB7B3", borderWidth:2.5
+        },{
+          label:t("target_lbl"),
+          data:[40,45,50,55,60,65,70,75],
+          borderColor:"#C49A4A",
+          borderDash:[4,4], backgroundColor:"transparent",
+          pointRadius:0, tension:0, borderWidth:2
+        }]
+      },
+      options:{
+        plugins:{legend:{position:"bottom",labels:{font:{family:LANG==='ar'?"Cairo":"Inter",size:11},boxWidth:14,padding:14,color:"#C9D6D4"}}},
+        scales:{
+          y:{beginAtZero:false,grid:{color:"rgba(255,255,255,.04)"},ticks:{font:{size:11},color:"#90A4A1",callback:v=>v+"%"}},
+          x:{grid:{display:false},ticks:{font:{size:11},color:"#90A4A1"}}
+        },
+        maintainAspectRatio:false
+      }
+    });
+  }
+
+  const ctx3=document.getElementById("kpiBarChart");
+  if(ctx3){
+    if(kpiBarChart) kpiBarChart.destroy();
+    const labels = KPIS.map(k=>{
+      const n = k.name[LANG];
+      return n.length>32 ? n.substring(0,30)+"…" : n;
+    });
+    const ach = KPIS.map(k=>pctOfTarget(k));
+    const colors = KPIS.map(k=>k.status==='red'?'#E76051':k.status==='amber'?'#E8B043':'#3FCB7E');
+    kpiBarChart = new Chart(ctx3,{
+      type:"bar",
+      data:{
+        labels,
+        datasets:[{
+          label:t("achievement"),
+          data:ach,
+          backgroundColor:colors,
+          borderRadius:6,
+          borderSkipped:false,
+          barThickness:18
+        }]
+      },
+      options:{
+        indexAxis:"y",
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:(c)=> c.parsed.x+"% "+t("of_target")}}
+        },
+        scales:{
+          x:{
+            beginAtZero:true,max:110,
+            grid:{color:"rgba(255,255,255,.04)"},
+            ticks:{font:{size:11},color:"#90A4A1",callback:v=>v+"%"}
+          },
+          y:{
+            grid:{display:false},
+            ticks:{font:{size:11},color:"#C9D6D4"}
+          }
+        },
+        maintainAspectRatio:false
+      }
+    });
+  }
+}
+
+/* ============ INIT ============ */
+function init(){
+  document.getElementById("strategyPillarFilter").onchange=renderStrategyTable;
+  document.getElementById("strategyStatusFilter").onchange=renderStrategyTable;
+  document.getElementById("initPillarFilter").onchange=renderInitiatives;
+  document.getElementById("initOwnerFilter").onchange=renderInitiatives;
+  document.getElementById("initStatusFilter").onchange=renderInitiatives;
+  document.getElementById("initSearch").oninput=renderInitiatives;
+  document.getElementById("kpiCatFilter").onchange=renderKpis;
+  document.getElementById("kpiPillarFilter").onchange=renderKpis;
+  document.getElementById("kpiStatusFilter").onchange=renderKpis;
+
+  buildPillarFilters(); buildOwnerFilters(); buildCategoryFilters();
+  renderPillars(); renderStrategyTable(); renderInitiatives(); renderGantt();
+  renderKpis(); renderInitSnapshot(); renderCharts(); updateCrumbs("overview");
+
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeDrawer(); });
+}
+window.addEventListener("DOMContentLoaded", init);
+
+window.activateTab = activateTab;
+window.openPillarDrawer = openPillarDrawer;
+window.openObjectiveDrawer = openObjectiveDrawer;
+window.openInitDrawer = openInitDrawer;
+window.openKpiDrawer = openKpiDrawer;
+window.closeDrawer = closeDrawer;
+window.setLang = setLang;
+window.clearStrategyFilters = clearStrategyFilters;
+window.clearInitFilters = clearInitFilters;
+window.clearKpiFilters = clearKpiFilters;
+</script>
+</body>
+</html>
